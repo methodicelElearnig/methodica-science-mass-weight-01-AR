@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>الكتلة، الوزن والفروق بينهما | برنامج 720</title>
+  <script>
+    /* The unit's only production entry point (ADDING-REPORTING-AND-RESUME.md §5.2). The platform
+       launches here with ?slxapi (and ?registration), so the redirect MUST carry
+       window.location.search — without it the LRS config is lost and every component reports
+       nothing. The folder name is lowercase on purpose (a capital would 404 on the CDN).
+       The former iframe shell lives on, dev/QA-only, as qa-shell.html. */
+    function toFirstComponent(){
+      window.location.replace('./methodica-science-mass-weight-01-01/index.html' + window.location.search);
+    }
+    toFirstComponent();
+  </script>
+</head>
+<body>
+  <p>
+    يتم نقلك الآن إلى الوحدة التعليميّة… <br />
+    <span onclick="toFirstComponent();" style="text-decoration: underline; color: blue; cursor: pointer;">اضغطوا هنا إذا لم يتم تحميل الصفحة</span>
+  </p>
+</body>
+</html>

@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>DEV — מסה ומשקל</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      background: #111827; font-family: 'Segoe UI', Arial, sans-serif; color: #d1d5db;
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+
+    /* ── TOP BAR ─────────────────────────────────────────────────── */
+    #dev-bar {
+      flex: 0 0 44px; height: 44px;
+      background: #1f2937; border-bottom: 1px solid #374151;
+      display: flex; align-items: center; gap: 8px; padding: 0 12px;
+      direction: ltr;
+      overflow-x: auto; overflow-y: hidden; /* safety net: scroll rather than lose controls off-screen */
+      scrollbar-width: thin;
+    }
+    .dev-tag  { flex-shrink:0; color:#f87171;font-size:11px;font-weight:700;letter-spacing:2px;padding:2px 8px;border:1px solid #f87171;border-radius:3px; }
+    .nav-btn  { flex-shrink:0; background:#374151;color:#d1d5db;border:1px solid #4b5563;border-radius:5px;padding:4px 14px;font-size:15px;cursor:pointer; }
+    .nav-btn:hover { background:#4b5563;color:#fff; }
+    #dev-screen-num { flex-shrink:0; color:#93c5fd;font-size:13px;font-weight:600;min-width:60px;text-align:center; }
+    #dev-kb-hint { color:#6b7280;font-size:11px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    #dev-edit-toggle { flex-shrink:0; background:#374151;border:1px solid #4b5563;border-radius:5px;color:#9ca3af;font-size:12px;padding:5px 14px;cursor:pointer; }
+    #dev-edit-toggle.is-active { background:#78350f;border-color:#f59e0b;color:#fde68a; }
+
+    /* Below this width the toolbar hint text is the first thing to go — it's
+       the least essential element, and dropping it buys back real room for
+       the nav / zoom / edit controls that must stay reachable without scrolling. */
+    @media (max-width: 900px) {
+      #dev-kb-hint { display:none; }
+    }
+
+    /* ── ZOOM CONTROLS ───────────────────────────────────────────── */
+    .zoom-controls { display:flex;align-items:center;gap:4px;flex-shrink:0; }
+    .zoom-controls .nav-btn { padding:4px 10px;font-size:13px; }
+    #zoom-select {
+      background:#374151;color:#d1d5db;border:1px solid #4b5563;border-radius:5px;
+      padding:4px 6px;font-size:12px;cursor:pointer;
+    }
+    #zoom-select:hover { background:#4b5563;color:#fff; }
+
+    /* ── BODY ROW (sidebar / workspace / props) ───────────────────── */
+    #dev-body { flex:1; min-height:0; display:flex; direction:ltr; position:relative; }
+
+    /* ── SLIDE NAV PANEL (left) ──────────────────────────────────── */
+    #dev-panel {
+      flex:0 0 160px; width:160px;
+      background:#1f2937;border-right:1px solid #374151;overflow-y:auto;padding:8px 0;
+    }
+    .dev-slide-btn { display:flex;align-items:center;gap:8px;width:100%;padding:7px 12px;background:none;border:none;color:#9ca3af;font-size:12px;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .dev-slide-btn:hover { background:#374151;color:#e5e7eb; }
+    .dev-slide-btn.is-active { background:#1d4ed8;color:#fff; }
+    .dev-slide-num { font-size:10px;opacity:.6;width:18px;text-align:center;flex-shrink:0; }
+
+    /* ── PROPERTIES PANEL (right) ────────────────────────────────── */
+    #dev-props {
+      flex:0 0 240px; width:240px;
+      background:#1f2937;border-left:1px solid #374151;overflow-y:auto;
+      display:none;flex-direction:column;
+    }
+    #dev-props.is-open { display:flex; }
+
+    /* Narrow work panels (e.g. the Claude Code Browser pane docked beside
+       chat): the side rails eat into the canvas first, so shrink them before
+       the canvas itself is squeezed unusably small. */
+    @media (max-width: 1100px) {
+      #dev-panel { flex-basis:120px; width:120px; }
+      #dev-props, #vee-panel { flex-basis:190px; width:190px; }
+    }
+    .ph   { padding:20px 12px;font-size:12px;color:#6b7280;text-align:center;line-height:1.7; }
+    .psel { padding:8px 12px;font-size:10px;color:#6b7280;border-bottom:1px solid #374151;word-break:break-all;direction:ltr;font-family:monospace; }
+    .psec { border-bottom:1px solid #2d3748;padding:6px 0; }
+    .psec-t { padding:5px 12px;font-size:10px;font-weight:700;letter-spacing:1px;color:#6b7280;text-transform:uppercase;direction:ltr; }
+    .prow { display:flex;align-items:center;padding:3px 12px;gap:6px;direction:ltr; }
+    .plbl { font-size:11px;color:#9ca3af;width:72px;flex-shrink:0; }
+    .pinp { flex:1;background:#111827;border:1px solid #374151;border-radius:3px;color:#e5e7eb;font-size:12px;padding:3px 6px;min-width:0;font-family:monospace; }
+    .pinp:focus { outline:none;border-color:#3b82f6; }
+    select.pinp { background:#111827;color:#e5e7eb;cursor:pointer; }
+    input[type="color"].pinp { padding:1px 2px;height:26px;cursor:pointer; }
+    .ptx-wrap { padding:4px 12px 8px; }
+    .ptx { width:100%;background:#111827;border:1px solid #374151;border-radius:3px;color:#e5e7eb;font-size:13px;padding:5px 8px;resize:vertical;min-height:48px;font-family:inherit;direction:rtl; }
+    .ptx:focus { outline:none;border-color:#3b82f6; }
+
+    /* Alignment buttons */
+    .align-grid { display:grid;grid-template-columns:repeat(6,1fr);gap:3px;padding:6px 12px; }
+    .ab { background:#374151;border:1px solid #4b5563;border-radius:4px;color:#d1d5db;font-size:14px;cursor:pointer;padding:5px 0;text-align:center; }
+    .ab:hover { background:#4b5563;color:#fff; }
+    .ab[title]:hover::after { content:attr(title);position:absolute;background:#000;color:#fff;font-size:10px;padding:2px 6px;border-radius:3px;white-space:nowrap;margin-top:22px;z-index:999; }
+
+    .pcopy { margin:10px 12px;padding:7px;width:calc(100% - 24px);background:#064e3b;border:1px solid #059669;border-radius:4px;color:#a7f3d0;font-size:12px;cursor:pointer;display:block; }
+    .pcopy:hover { background:#065f46; }
+
+    .pnudge-hint { padding:4px 12px 8px;font-size:10px;color:#4b5563;direction:ltr; }
+
+    /* ── WORKSPACE (scrollable canvas area) ───────────────────────── */
+    #dev-workspace {
+      flex:1; min-width:0; position:relative;
+      overflow:auto;
+      background:#111827;
+    }
+    #dev-workspace.space-pan-ready { cursor:grab; }
+    #dev-workspace.is-panning { cursor:grabbing; }
+    #canvas-sizer { position:relative; }
+    #dev-iframe {
+      position:absolute; width:1280px;height:710px;border:2px solid #374151;
+      transform-origin:top left;display:block;
+    }
+    /* While Space-panning, block clicks on the lomda / editor overlays so drag never fires them */
+    body.dev-pan-mode #dev-iframe,
+    body.dev-pan-mode #ed-cap,
+    body.dev-pan-mode .vee-proxy { pointer-events:none; }
+
+    /* ── EDITOR OVERLAYS (all position:fixed, in parent doc) ─────── */
+
+    /* Invisible capture layer — over iframe only */
+    #ed-cap {
+      position:fixed;display:none;cursor:crosshair;z-index:600;
+      user-select:none;
+    }
+
+    /* Hover highlight */
+    #ed-hov {
+      position:fixed;display:none;pointer-events:none;z-index:601;
+      border:1px dashed #3b82f6;background:rgba(59,130,246,.06);
+    }
+
+    /* Selection box */
+    #ed-sel {
+      position:fixed;display:none;z-index:602;
+      border:2px solid #f59e0b;
+      /* children are position:absolute relative to this */
+    }
+
+    /* Move area — covers interior of selection */
+    #ed-mv {
+      position:absolute;
+      top:0;left:0;right:0;bottom:0;
+      cursor:move;
+      z-index:0;
+    }
+
+    /* Label */
+    #ed-lbl {
+      position:absolute;top:-22px;left:-2px;
+      background:#f59e0b;color:#000;
+      font:700 10px/18px monospace;padding:0 6px;
+      border-radius:3px 3px 0 0;white-space:nowrap;
+      pointer-events:none;z-index:5;
+    }
+
+    /* Resize handles */
+    .ed-h {
+      position:absolute;width:10px;height:10px;
+      background:#fff;border:2px solid #f59e0b;border-radius:2px;
+      z-index:10;
+    }
+    .ed-h[data-d=nw]{ top:-6px; left:-6px;  cursor:nw-resize; }
+    .ed-h[data-d=n] { top:-6px; left:calc(50% - 5px); cursor:n-resize; }
+    .ed-h[data-d=ne]{ top:-6px; right:-6px; cursor:ne-resize; }
+    .ed-h[data-d=e] { top:calc(50% - 5px); right:-6px; cursor:e-resize; }
+    .ed-h[data-d=se]{ bottom:-6px;right:-6px; cursor:se-resize; }
+    .ed-h[data-d=s] { bottom:-6px;left:calc(50% - 5px); cursor:s-resize; }
+    .ed-h[data-d=sw]{ bottom:-6px;left:-6px; cursor:sw-resize; }
+    .ed-h[data-d=w] { top:calc(50% - 5px); left:-6px; cursor:w-resize; }
+
+    /* Dimension badge shown during resize */
+    #ed-dim {
+      position:fixed;display:none;pointer-events:none;z-index:620;
+      background:#111;color:#fff;font:12px/1 monospace;
+      padding:3px 7px;border-radius:4px;
+    }
+
+    /* Full-screen drag lock — shown while dragging to block iframe events */
+    #ed-drag-lock {
+      position:fixed;inset:0;display:none;z-index:610;cursor:grabbing;
+    }
+
+    /* Center guides */
+    #ed-gv,#ed-gh {
+      position:fixed;display:none;pointer-events:none;z-index:603;
+      background:rgba(255,0,120,.5);
+    }
+    #ed-gv { width:1px; }
+    #ed-gh { height:1px; }
+
+    /* ── VEE — VISUAL ELEMENT EDITOR ────────────────────────────── */
+    #vee-toggle-btn {
+      display:none;background:#1e1b4b;border:1px solid #6366f1;
+      border-radius:5px;color:#a5b4fc;font-size:12px;padding:5px 14px;cursor:pointer;
+    }
+    #vee-toggle-btn.is-active { background:#312e81;color:#c7d2fe;border-color:#818cf8; }
+    #vee-panel {
+      flex:0 0 240px; width:240px;
+      background:#1f2937;border-left:1px solid #374151;
+      display:none;flex-direction:column;overflow-y:auto;
+    }
+    #vee-panel.is-open { display:flex; }
+    #vee-panel-head {
+      padding:10px 12px;font-size:10px;font-weight:700;color:#6b7280;
+      letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid #374151;direction:ltr;
+      display:flex;align-items:center;gap:6px;
+    }
+    #vee-panel-body { flex:1;overflow-y:auto; }
+    .vee-ph-name {
+      padding:12px 12px 2px;font-size:14px;font-weight:700;color:#e5e7eb;
+      direction:rtl;text-align:right;
+    }
+    .vee-ph-type {
+      padding:0 12px 8px;font-size:10px;color:#6b7280;direction:ltr;
+    }
+    .vee-ph-sep { border-top:1px solid #374151;margin:4px 0; }
+    .vee-row { display:flex;align-items:center;padding:4px 12px;gap:6px;direction:ltr; }
+    .vee-lbl { font-size:11px;color:#9ca3af;width:68px;flex-shrink:0;text-align:right; }
+    .vee-inp {
+      flex:1;background:#111827;border:1px solid #374151;border-radius:3px;
+      color:#e5e7eb;font-size:12px;padding:3px 6px;font-family:monospace;min-width:0;
+    }
+    .vee-inp:focus { outline:none;border-color:#6366f1; }
+    .vee-export-btn, .vee-reset-btn {
+      margin:6px 12px 0;padding:7px;border-radius:4px;font-size:12px;cursor:pointer;display:block;width:calc(100% - 24px);
+    }
+    .vee-export-btn { background:#064e3b;border:1px solid #059669;color:#a7f3d0; }
+    .vee-export-btn:hover { background:#065f46; }
+    .vee-reset-btn  { background:#374151;border:1px solid #4b5563;color:#9ca3af;margin-bottom:10px; }
+    .vee-reset-btn:hover  { background:#4b5563;color:#e5e7eb; }
+    /* Proxy elements in parent viewport */
+    .vee-proxy {
+      position:fixed;cursor:move;z-index:800;box-sizing:border-box;
+    }
+    .vee-proxy--hotspot {
+      width:28px;height:28px;border-radius:50%;
+      background:rgba(99,102,241,.35);border:2px solid #6366f1;
+      box-shadow:0 0 0 3px rgba(99,102,241,.25),0 2px 6px rgba(0,0,0,.4);
+    }
+    .vee-proxy--hotspot:hover { box-shadow:0 0 0 6px rgba(99,102,241,.4),0 2px 6px rgba(0,0,0,.4); }
+    .vee-proxy--bubble {
+      border:2px dashed #f59e0b;background:rgba(245,158,11,.08);border-radius:6px;
+    }
+    .vee-proxy--bubble:hover { background:rgba(245,158,11,.15); }
+    .vee-proxy.is-selected {
+      border-color:#fff !important;
+      box-shadow:0 0 0 2px #6366f1, 0 0 0 4px rgba(99,102,241,.4) !important;
+    }
+    /* Resize handles on selected proxy */
+    .vee-h {
+      position:fixed;width:10px;height:10px;
+      background:#fff;border:2px solid #6366f1;border-radius:2px;
+      z-index:810;
+    }
+    .vee-h[data-d=nw]{ cursor:nw-resize; }
+    .vee-h[data-d=n] { cursor:n-resize; }
+    .vee-h[data-d=ne]{ cursor:ne-resize; }
+    .vee-h[data-d=e] { cursor:e-resize; }
+    .vee-h[data-d=se]{ cursor:se-resize; }
+    .vee-h[data-d=s] { cursor:s-resize; }
+    .vee-h[data-d=sw]{ cursor:sw-resize; }
+    .vee-h[data-d=w] { cursor:w-resize; }
+  </style>
+</head>
+<body>
+
+<!-- ── DEV BAR ── -->
+<div id="dev-bar">
+  <span class="dev-tag">DEV</span>
+  <button class="nav-btn" onclick="devStep(-1)">◀</button>
+  <div id="dev-screen-num">0 / —</div>
+  <button class="nav-btn" onclick="devStep(1)">▶</button>
+  <span id="dev-kb-hint">Ctrl+←/→ · esc=בטל · ↑↓←→=nudge · Shift=×10 · Space=Pan · Ctrl+גלגלת=Zoom</span>
+  <div class="zoom-controls">
+    <button class="nav-btn" id="zoom-out-btn" title="הקטן זום">−</button>
+    <select id="zoom-select" title="אחוז זום"></select>
+    <button class="nav-btn" id="zoom-in-btn" title="הגדל זום">+</button>
+    <button class="nav-btn" id="zoom-fit-btn" title="התאם לחלון">Fit</button>
+    <button class="nav-btn" id="zoom-center-btn" title="מרכז קנבס">Center</button>
+  </div>
+  <button id="dev-edit-toggle" onclick="toggleEdit()">✏️ עריכה</button>
+  <button id="vee-toggle-btn" onclick="veeToggle()">🎨 מצב עריכה</button>
+</div>
+
+<!-- ── BODY ROW ── -->
+<div id="dev-body">
+
+  <!-- ── SLIDE NAV ── -->
+  <div id="dev-panel"></div>
+
+  <!-- ── WORKSPACE (scrollable) ── -->
+  <div id="dev-workspace">
+    <div id="canvas-sizer">
+      <!-- Trailing-slash directory form, not "index.html" — the dev server's
+           clean-URL redirect for a literal "index.html" request collapses
+           through multiple hops to the bare directory path WITHOUT a
+           trailing slash, which then makes every one of this document's own
+           relative asset/script requests (css/style.css, js/main.js, …)
+           resolve one directory too high. Same fix already used by the root
+           unit shell (see unit-shell.js: `frame.src = COMPONENTS[i].path`,
+           which is itself a trailing-slash path). -->
+      <iframe id="dev-iframe" src="./?dev=1" title="לומדה"></iframe>
+      <!-- Arabic build: opened straight from disk (file://) there is no server to turn "./" into
+           index.html, so Chrome lists the folder instead. Only in that case, point at the file itself. -->
+      <script>if (location.protocol === 'file:') document.getElementById('dev-iframe').src = 'index.html?dev=1';</script>
+    </div>
+  </div>
+
+  <!-- ── PROPERTIES ── -->
+  <div id="dev-props">
+    <div class="ph" id="props-hint">לחצו על אלמנט<br>בלומדה לעריכה<br><br><small style="color:#4b5563">Esc = בטל בחירה<br>↑↓←→ = הזזה 1px<br>Shift+arrow = 10px</small></div>
+  </div>
+
+  <!-- ── VEE PANEL ── -->
+  <div id="vee-panel">
+    <div id="vee-panel-head">🎨 Visual Editor</div>
+    <div id="vee-panel-body">
+      <div style="padding:20px 12px;font-size:12px;color:#6b7280;text-align:center;line-height:1.7">
+        לחצו על אלמנט<br>לבחירה ועריכה
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── OVERLAYS ── -->
+<div id="ed-cap"></div>
+<div id="ed-hov"></div>
+
+<div id="ed-sel">
+  <div id="ed-mv"></div>
+  <div id="ed-lbl"></div>
+  <div class="ed-h" data-d="nw"></div>
+  <div class="ed-h" data-d="n"></div>
+  <div class="ed-h" data-d="ne"></div>
+  <div class="ed-h" data-d="e"></div>
+  <div class="ed-h" data-d="se"></div>
+  <div class="ed-h" data-d="s"></div>
+  <div class="ed-h" data-d="sw"></div>
+  <div class="ed-h" data-d="w"></div>
+</div>
+
+<div id="ed-dim"></div>
+<div id="ed-drag-lock"></div>
+<div id="ed-gv"></div>
+<div id="ed-gh"></div>
+
+<script>
+'use strict';
+
+/* ════════════════════════════════════════════════════
+   GLOBALS
+════════════════════════════════════════════════════ */
+var SCREEN_NAMES = ['פתיחה','הוק — ד׳ דמויות','הסבר המשפט','בחירת מסלול'];
+var CANVAS_W = 1280, CANVAS_H = 710;
+
+var devScreen = 0, devTotal = null, editMode = false;
+var selEl = null, hovEl = null;
+var changes = {};   // { selector: { prop: val } }
+var propInputs = {};
+var rafId = null;
+
+// Drag state
+var drag = { on:false, type:'move', dir:'', sx:0, sy:0, ot:0, ol:0, ow:0, oh:0 };
+
+// DOM refs
+var iframe    = document.getElementById('dev-iframe');
+var workspace = document.getElementById('dev-workspace');
+var sizer     = document.getElementById('canvas-sizer');
+var panel     = document.getElementById('dev-panel');
+var propsPane = document.getElementById('dev-props');
+var screenLbl = document.getElementById('dev-screen-num');
+var edCap     = document.getElementById('ed-cap');
+var edHov     = document.getElementById('ed-hov');
+var edSel     = document.getElementById('ed-sel');
+var edMv      = document.getElementById('ed-mv');
+var edLbl     = document.getElementById('ed-lbl');
+var edDim     = document.getElementById('ed-dim');
+var edLock    = document.getElementById('ed-drag-lock');
+var edGV      = document.getElementById('ed-gv');
+var edGH      = document.getElementById('ed-gh');
+
+/* ════════════════════════════════════════════════════
+   IFRAME COORDINATE HELPERS
+════════════════════════════════════════════════════ */
+
+// Returns the iframe's VISUAL rect in parent viewport (getBoundingClientRect
+// accounts for CSS transforms, so this gives the scaled visual bounds).
+function iframeRect() {
+  return iframe.getBoundingClientRect();
+}
+
+// Scale factor: visual iframe width / natural iframe width
+function iframeScale() {
+  return iframeRect().width / CANVAS_W;
+}
+
+// Convert parent viewport (mouse) coords → iframe CSS pixel coords
+function parentToCanvas(px, py) {
+  var r = iframeRect();
+  var s = r.width / CANVAS_W;
+  return { x: (px - r.left) / s, y: (py - r.top) / s };
+}
+
+// Convert an element's getBoundingClientRect() (in iframe viewport) → parent viewport
+function elToParent(r) {
+  var ir = iframeRect();
+  var s  = ir.width / CANVAS_W;
+  return { left: ir.left + r.left * s, top: ir.top + r.top * s,
+           width: r.width * s,         height: r.height * s };
+}
+
+/* ════════════════════════════════════════════════════
+   ZOOM / PAN (real scrollable workspace, à la Figma)
+════════════════════════════════════════════════════ */
+var MIN_ZOOM = 0.25, MAX_ZOOM = 3;
+var ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3];
+var STAGE_MARGIN = 120;  // px of scrollable breathing room around the canvas, at any zoom
+var FIT_PADDING  = 24;   // px kept clear around the canvas when fitting
+
+var currentZoom = 1;
+var fitMode = true;
+
+var zoomSelect   = document.getElementById('zoom-select');
+var zoomInBtn    = document.getElementById('zoom-in-btn');
+var zoomOutBtn   = document.getElementById('zoom-out-btn');
+var zoomFitBtn   = document.getElementById('zoom-fit-btn');
+var zoomCenterBtn= document.getElementById('zoom-center-btn');
+
+// Position + size the sizer/iframe for currentZoom, WITHOUT touching scroll position.
+function relayout() {
+  var scaledW = CANVAS_W * currentZoom;
+  var scaledH = CANVAS_H * currentZoom;
+  var sizerW  = Math.max(workspace.clientWidth,  scaledW + STAGE_MARGIN * 2);
+  var sizerH  = Math.max(workspace.clientHeight, scaledH + STAGE_MARGIN * 2);
+  sizer.style.width  = sizerW + 'px';
+  sizer.style.height = sizerH + 'px';
+
+  var left = Math.round((sizerW - scaledW) / 2);
+  var top  = Math.round((sizerH - scaledH) / 2);
+  iframe.style.left = left + 'px';
+  iframe.style.top  = top  + 'px';
+  iframe.style.transform = 'scale(' + currentZoom + ')';
+
+  positionCapture();
+  if (selEl) updateSelBox();
+  if (veeActive) veePositionAllProxies();
+}
+
+function positionCapture() {
+  var r = iframeRect();
+  edCap.style.left   = r.left   + 'px';
+  edCap.style.top    = r.top    + 'px';
+  edCap.style.width  = r.width  + 'px';
+  edCap.style.height = r.height + 'px';
+}
+
+// Canvas-space (0..CANVAS_W / 0..CANVAS_H) coords under a given viewport point, at the CURRENT zoom/layout.
+function canvasPointAt(clientX, clientY) {
+  var ir = iframe.getBoundingClientRect();
+  return { x: (clientX - ir.left) / currentZoom, y: (clientY - ir.top) / currentZoom };
+}
+function viewportCenterCanvasPoint() {
+  var wr = workspace.getBoundingClientRect();
+  return canvasPointAt(wr.left + wr.width / 2, wr.top + wr.height / 2);
+}
+// After relayout() has run for the NEW zoom, where does a canvas-space point land inside the sizer?
+function canvasPointToSizerPx(pt) {
+  var left = parseFloat(iframe.style.left) || 0;
+  var top  = parseFloat(iframe.style.top)  || 0;
+  return { x: left + pt.x * currentZoom, y: top + pt.y * currentZoom };
+}
+
+function relayoutPreservingCenter() {
+  var pt = viewportCenterCanvasPoint();
+  relayout();
+  var sp = canvasPointToSizerPx(pt);
+  workspace.scrollLeft = Math.round(sp.x - workspace.clientWidth  / 2);
+  workspace.scrollTop  = Math.round(sp.y - workspace.clientHeight / 2);
+}
+
+// anchor: {type:'cursor', clientX, clientY} or omitted → viewport center
+function setZoom(newZoom, anchor) {
+  newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newZoom));
+  if (Math.abs(newZoom - currentZoom) < 0.001) return;
+
+  var anchorX, anchorY;
+  if (anchor && anchor.type === 'cursor') {
+    anchorX = anchor.clientX; anchorY = anchor.clientY;
+  } else {
+    var wr = workspace.getBoundingClientRect();
+    anchorX = wr.left + wr.width / 2;
+    anchorY = wr.top  + wr.height / 2;
+  }
+  var canvasPt   = canvasPointAt(anchorX, anchorY);
+  var wrBefore   = workspace.getBoundingClientRect();
+  var viewportX  = anchorX - wrBefore.left;
+  var viewportY  = anchorY - wrBefore.top;
+
+  currentZoom = newZoom;
+  fitMode = false;
+  relayout();
+
+  var sp = canvasPointToSizerPx(canvasPt);
+  workspace.scrollLeft = Math.round(sp.x - viewportX);
+  workspace.scrollTop  = Math.round(sp.y - viewportY);
+
+  updateZoomUI();
+}
+
+function zoomIn() {
+  var next = ZOOM_STEPS.find(function(z) { return z > currentZoom + 0.001; });
+  setZoom(next !== undefined ? next : MAX_ZOOM);
+}
+function zoomOut() {
+  var below = ZOOM_STEPS.filter(function(z) { return z < currentZoom - 0.001; });
+  setZoom(below.length ? below[below.length - 1] : MIN_ZOOM);
+}
+
+function fitToWindow() {
+  var availW = workspace.clientWidth  - FIT_PADDING * 2;
+  var availH = workspace.clientHeight - FIT_PADDING * 2;
+  var s = Math.min(availW / CANVAS_W, availH / CANVAS_H);
+  currentZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, s));
+  fitMode = true;
+  relayout();
+  centerCanvas();
+  updateZoomUI();
+}
+
+function centerCanvas() {
+  workspace.scrollLeft = Math.round((sizer.offsetWidth  - workspace.clientWidth)  / 2);
+  workspace.scrollTop  = Math.round((sizer.offsetHeight - workspace.clientHeight) / 2);
+}
+
+function updateZoomUI() {
+  var values = ZOOM_STEPS.slice();
+  if (values.indexOf(currentZoom) === -1) values.push(currentZoom);
+  values.sort(function(a, b) { return a - b; });
+  zoomSelect.innerHTML = '';
+  values.forEach(function(z) {
+    var opt = document.createElement('option');
+    opt.value = z;
+    opt.textContent = Math.round(z * 100) + '%';
+    if (Math.abs(z - currentZoom) < 0.001) opt.selected = true;
+    zoomSelect.appendChild(opt);
+  });
+}
+
+zoomInBtn.addEventListener('click', zoomIn);
+zoomOutBtn.addEventListener('click', zoomOut);
+zoomFitBtn.addEventListener('click', fitToWindow);
+zoomCenterBtn.addEventListener('click', centerCanvas);
+zoomSelect.addEventListener('change', function() { setZoom(parseFloat(zoomSelect.value)); });
+
+// Ctrl/Cmd + wheel → zoom at cursor (Mac + Windows)
+workspace.addEventListener('wheel', function(e) {
+  if (!(e.ctrlKey || e.metaKey)) return;
+  e.preventDefault();
+  var factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+  setZoom(currentZoom * factor, { type: 'cursor', clientX: e.clientX, clientY: e.clientY });
+}, { passive: false });
+
+// Window resize: re-fit if in Fit mode, otherwise keep zoom and preserve the visual center.
+window.addEventListener('resize', function() {
+  if (fitMode) fitToWindow(); else relayoutPreservingCenter();
+});
+iframe.addEventListener('load', function() {
+  buildPanel();
+  if (fitMode) fitToWindow(); else relayout();
+});
+
+/* ── Space + drag panning ─────────────────────────────────────── */
+var spacePanActive = false;
+var panState = null;
+
+function isEditableTarget(el) {
+  if (!el) return false;
+  var tag = el.tagName;
+  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable;
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.code === 'Space' && !spacePanActive && !isEditableTarget(document.activeElement)) {
+    spacePanActive = true;
+    document.body.classList.add('dev-pan-mode');
+    workspace.classList.add('space-pan-ready');
+    e.preventDefault();
+  }
+});
+document.addEventListener('keyup', function(e) {
+  if (e.code === 'Space') {
+    spacePanActive = false;
+    panState = null;
+    document.body.classList.remove('dev-pan-mode');
+    workspace.classList.remove('space-pan-ready', 'is-panning');
+  }
+});
+window.addEventListener('blur', function() {
+  spacePanActive = false;
+  panState = null;
+  document.body.classList.remove('dev-pan-mode');
+  workspace.classList.remove('space-pan-ready', 'is-panning');
+});
+
+workspace.addEventListener('mousedown', function(e) {
+  if (!spacePanActive) return;
+  e.preventDefault();
+  panState = { startX: e.clientX, startY: e.clientY, startLeft: workspace.scrollLeft, startTop: workspace.scrollTop };
+  workspace.classList.add('is-panning');
+});
+document.addEventListener('mousemove', function(e) {
+  if (!panState) return;
+  workspace.scrollLeft = panState.startLeft - (e.clientX - panState.startX);
+  workspace.scrollTop  = panState.startTop  - (e.clientY - panState.startY);
+});
+document.addEventListener('mouseup', function() {
+  if (panState) { panState = null; workspace.classList.remove('is-panning'); }
+});
+
+/* ════════════════════════════════════════════════════
+   SLIDE NAVIGATION
+════════════════════════════════════════════════════ */
+// A screen index only gets a slide button / is reachable via step-nav if a
+// matching [data-screen] section actually exists in the loaded iframe —
+// TOTAL_SCREENS is an exclusive upper bound and can have gaps (e.g. a screen
+// removed mid-range without renumbering), which must not surface as a blank
+// "dead" slide in this dev tool.
+function getValidScreens() {
+  var doc = iframe.contentDocument;
+  if (!doc) return null;
+  var set = {};
+  doc.querySelectorAll('.screen[data-screen]').forEach(function(el) {
+    set[Number(el.dataset.screen)] = true;
+  });
+  return set;
+}
+
+function buildPanel() {
+  panel.innerHTML = '';
+  var total = devTotal !== null ? devTotal : SCREEN_NAMES.length;
+  var valid = getValidScreens();
+  for (var i = 0; i < total; i++) (function(idx) {
+    if (valid && !valid[idx]) return; // no matching section — not a real screen
+    var btn = document.createElement('button');
+    btn.className = 'dev-slide-btn' + (idx === devScreen ? ' is-active' : '');
+    btn.dataset.slideIdx = idx;
+    btn.innerHTML = '<span class="dev-slide-num">' + idx + '</span>' +
+                    (SCREEN_NAMES[idx] || 'מסך ' + idx);
+    btn.onclick = function() { devGoTo(idx); };
+    panel.appendChild(btn);
+  })(i);
+}
+
+function updateNavLabel() {
+  screenLbl.textContent = devScreen + ' / ' + (devTotal !== null ? devTotal - 1 : '—');
+  panel.querySelectorAll('.dev-slide-btn').forEach(function(b) {
+    b.classList.toggle('is-active', Number(b.dataset.slideIdx) === devScreen);
+  });
+}
+
+function devGoTo(n) {
+  devScreen = n;
+  iframe.contentWindow.postMessage({ type:'devGoTo', screen:n }, '*');
+  updateNavLabel();
+  veeOnScreenChange(n);
+}
+function devStep(d) {
+  var max = devTotal !== null ? devTotal - 1 : SCREEN_NAMES.length - 1;
+  var valid = getValidScreens();
+  var next = devScreen;
+  do {
+    next += d;
+  } while (valid && !valid[next] && next > 0 && next < max);
+  devGoTo(Math.max(0, Math.min(next, max)));
+}
+
+window.addEventListener('message', function(e) {
+  if (!e.data) return;
+  if (e.data.type === 'totalScreens' || e.data.type === 'screenChanged') {
+    devTotal = e.data.total;
+    if (e.data.screen !== undefined) devScreen = e.data.screen;
+    buildPanel(); updateNavLabel();
+    veeOnScreenChange(devScreen);
+  }
+});
+
+/* ════════════════════════════════════════════════════
+   EDIT MODE
+════════════════════════════════════════════════════ */
+function toggleEdit() {
+  editMode = !editMode;
+  document.getElementById('dev-edit-toggle').classList.toggle('is-active', editMode);
+  edCap.style.display = editMode ? 'block' : 'none';
+  if (editMode) {
+    propsPane.classList.add('is-open');
+  } else {
+    propsPane.classList.remove('is-open');
+    clearSelection();
+    edHov.style.display = 'none';
+  }
+  // Recalculate after layout change (use rAF to let browser apply CSS first)
+  requestAnimationFrame(relayoutPreservingCenter);
+}
+
+/* ════════════════════════════════════════════════════
+   HOVER
+════════════════════════════════════════════════════ */
+edCap.addEventListener('mousemove', function(e) {
+  if (drag.on) return;
+  var ifc = iframe.contentDocument;
+  if (!ifc) return;
+  var c   = parentToCanvas(e.clientX, e.clientY);
+  var el  = ifc.elementFromPoint(c.x, c.y);
+  if (!el || el === ifc.body || el === ifc.documentElement || el === selEl) {
+    edHov.style.display = 'none'; hovEl = null; return;
+  }
+  hovEl = el;
+  var r = elToParent(el.getBoundingClientRect());
+  place(edHov, r);
+  edHov.style.display = 'block';
+});
+
+edCap.addEventListener('mouseleave', function() {
+  if (!drag.on) { edHov.style.display = 'none'; hovEl = null; }
+});
+
+/* ════════════════════════════════════════════════════
+   SELECTION
+════════════════════════════════════════════════════ */
+edCap.addEventListener('click', function(e) {
+  var ifc = iframe.contentDocument;
+  if (!ifc) return;
+  var c  = parentToCanvas(e.clientX, e.clientY);
+  var el = ifc.elementFromPoint(c.x, c.y);
+  if (!el || el === ifc.body || el === ifc.documentElement) {
+    clearSelection(); return;
+  }
+  selectEl(el);
+});
+
+function selectEl(el) {
+  selEl = el;
+  edHov.style.display = 'none';
+  updateSelBox();
+  edSel.style.display = 'block';
+  renderProps(el);
+}
+
+function clearSelection() {
+  selEl = null;
+  edSel.style.display = 'none';
+  edDim.style.display = 'none';
+  hideGuides();
+  clearProps();
+}
+
+function updateSelBox() {
+  if (!selEl) return;
+  var r = elToParent(selEl.getBoundingClientRect());
+  place(edSel, r);
+  var tag = selEl.id ? '#' + selEl.id : (selEl.className ? '.' + selEl.className.trim().split(/\s+/)[0] : selEl.tagName.toLowerCase());
+  edLbl.textContent = tag;
+}
+
+function place(div, r) {
+  div.style.left   = Math.round(r.left)   + 'px';
+  div.style.top    = Math.round(r.top)    + 'px';
+  div.style.width  = Math.round(r.width)  + 'px';
+  div.style.height = Math.round(r.height) + 'px';
+}
+
+/* ════════════════════════════════════════════════════
+   DRAG — MOVE & RESIZE
+════════════════════════════════════════════════════ */
+
+// Move area
+edMv.addEventListener('mousedown', function(e) { startDrag(e, 'move', ''); });
+
+// Handles
+edSel.querySelectorAll('.ed-h').forEach(function(h) {
+  h.addEventListener('mousedown', function(e) { startDrag(e, 'resize', h.dataset.d); });
+});
+
+function startDrag(e, type, dir) {
+  if (!selEl) return;
+  e.preventDefault(); e.stopPropagation();
+
+  // Ensure element is position:absolute with explicit px values
+  ensurePositioned();
+
+  drag.on  = true;
+  drag.type = type;
+  drag.dir  = dir;
+  drag.sx   = e.clientX;
+  drag.sy   = e.clientY;
+  drag.ot   = parseFloat(selEl.style.top)    || 0;
+  drag.ol   = parseFloat(selEl.style.left)   || 0;
+  drag.ow   = parseFloat(selEl.style.width)  || selEl.offsetWidth  || 0;
+  drag.oh   = parseFloat(selEl.style.height) || selEl.offsetHeight || 0;
+
+  // Show full-screen lock to prevent iframe from stealing events
+  edLock.style.display = 'block';
+  edLock.style.cursor  = (type === 'move') ? 'move' : dir + '-resize';
+  edHov.style.display  = 'none';
+}
+
+document.addEventListener('mousemove', function(e) {
+  if (!drag.on || !selEl) return;
+  var s  = iframeScale();
+  var dx = (e.clientX - drag.sx) / s;
+  var dy = (e.clientY - drag.sy) / s;
+
+  if (drag.type === 'move') {
+    selEl.style.left = Math.round(drag.ol + dx) + 'px';
+    selEl.style.top  = Math.round(drag.ot + dy) + 'px';
+    showGuides();
+  } else {
+    applyResize(dx, dy);
+    showDim();
+  }
+
+  updateSelBox();
+  syncPositionInputs();
+});
+
+document.addEventListener('mouseup', function() {
+  if (!drag.on) return;
+  drag.on = false;
+  edLock.style.display = 'none';
+  edDim.style.display  = 'none';
+  hideGuides();
+  if (selEl) { saveChange(); syncPositionInputs(); }
+});
+
+function applyResize(dx, dy) {
+  var d = drag.dir;
+  var nt = drag.ot, nl = drag.ol, nw = drag.ow, nh = drag.oh;
+  if (d.indexOf('s') !== -1) nh = Math.max(4, drag.oh + dy);
+  if (d.indexOf('n') !== -1) { nh = Math.max(4, drag.oh - dy); nt = drag.ot + dy; }
+  if (d.indexOf('e') !== -1) nw = Math.max(4, drag.ow + dx);
+  if (d.indexOf('w') !== -1) { nw = Math.max(4, drag.ow - dx); nl = drag.ol + dx; }
+  selEl.style.top    = Math.round(nt) + 'px';
+  selEl.style.left   = Math.round(nl) + 'px';
+  selEl.style.width  = Math.round(nw) + 'px';
+  selEl.style.height = Math.round(nh) + 'px';
+}
+
+function ensurePositioned() {
+  if (!selEl) return;
+  var cs  = iframe.contentWindow.getComputedStyle(selEl);
+  var pos = cs.position;
+  // Read current rendered position relative to the positioned parent
+  var t = parseFloat(cs.top),  l = parseFloat(cs.left);
+  var w = selEl.offsetWidth,    h = selEl.offsetHeight;
+  if (pos !== 'absolute' && pos !== 'fixed') {
+    selEl.style.position = 'absolute';
+  }
+  // Only set inline top/left if not already set as inline
+  if (!selEl.style.top)    selEl.style.top    = (isNaN(t) ? 0 : Math.round(t)) + 'px';
+  if (!selEl.style.left)   selEl.style.left   = (isNaN(l) ? 0 : Math.round(l)) + 'px';
+  if (!selEl.style.width)  selEl.style.width  = w + 'px';
+  if (!selEl.style.height) selEl.style.height = h + 'px';
+}
+
+/* ════════════════════════════════════════════════════
+   SNAP GUIDES
+════════════════════════════════════════════════════ */
+function showGuides() {
+  if (!selEl) return;
+  var ir = iframeRect();
+  var s  = ir.width / CANVAS_W;
+  var ct = parseFloat(selEl.style.top),  cl = parseFloat(selEl.style.left);
+  var cw = parseFloat(selEl.style.width),ch = parseFloat(selEl.style.height);
+  var cx = cl + cw/2, cy = ct + ch/2;
+  var SNAP = 6; // px threshold in canvas space
+
+  // Vertical center guide
+  if (Math.abs(cx - CANVAS_W/2) < SNAP) {
+    edGV.style.display = 'block';
+    edGV.style.left    = (ir.left + CANVAS_W/2 * s) + 'px';
+    edGV.style.top     = ir.top  + 'px';
+    edGV.style.height  = ir.height + 'px';
+    selEl.style.left   = Math.round(CANVAS_W/2 - cw/2) + 'px';
+  } else { edGV.style.display = 'none'; }
+
+  // Horizontal center guide
+  if (Math.abs(cy - CANVAS_H/2) < SNAP) {
+    edGH.style.display = 'block';
+    edGH.style.top     = (ir.top + CANVAS_H/2 * s) + 'px';
+    edGH.style.left    = ir.left + 'px';
+    edGH.style.width   = ir.width + 'px';
+    selEl.style.top    = Math.round(CANVAS_H/2 - ch/2) + 'px';
+  } else { edGH.style.display = 'none'; }
+}
+
+function hideGuides() { edGV.style.display = 'none'; edGH.style.display = 'none'; }
+
+function showDim() {
+  if (!selEl) return;
+  var w = parseFloat(selEl.style.width), h = parseFloat(selEl.style.height);
+  var r = elToParent(selEl.getBoundingClientRect());
+  edDim.textContent = Math.round(w) + ' × ' + Math.round(h);
+  edDim.style.left  = (r.left + r.width/2 - 36) + 'px';
+  edDim.style.top   = (r.top  + r.height + 4)   + 'px';
+  edDim.style.display = 'block';
+}
+
+/* ════════════════════════════════════════════════════
+   KEYBOARD NUDGE + ESC
+════════════════════════════════════════════════════ */
+document.addEventListener('keydown', function(e) {
+  // Dev navigation
+  if (e.ctrlKey && e.key === 'ArrowLeft')  { devStep(1);  return; }
+  if (e.ctrlKey && e.key === 'ArrowRight') { devStep(-1); return; }
+
+  // Edit mode
+  if (e.key === 'Escape' && editMode) { clearSelection(); return; }
+
+  // Nudge
+  if (!selEl || !editMode) return;
+  var step = e.shiftKey ? 10 : 1;
+  ensurePositioned();
+  var t = parseFloat(selEl.style.top)  || 0;
+  var l = parseFloat(selEl.style.left) || 0;
+  var moved = true;
+  if (e.key === 'ArrowUp')    selEl.style.top  = Math.round(t - step) + 'px';
+  else if (e.key === 'ArrowDown')  selEl.style.top  = Math.round(t + step) + 'px';
+  else if (e.key === 'ArrowLeft')  selEl.style.left = Math.round(l + step) + 'px'; // RTL: left arrow = right
+  else if (e.key === 'ArrowRight') selEl.style.left = Math.round(l - step) + 'px';
+  else moved = false;
+
+  if (moved) {
+    e.preventDefault();
+    updateSelBox();
+    syncPositionInputs();
+    saveChange();
+  }
+});
+
+/* ════════════════════════════════════════════════════
+   PROPERTIES PANEL
+════════════════════════════════════════════════════ */
+function clearProps() {
+  var hint = document.getElementById('props-hint');
+  propsPane.innerHTML = '';
+  propsPane.appendChild(hint);
+  hint.style.display = '';
+  propInputs = {};
+}
+
+function renderProps(el) {
+  clearProps();
+  document.getElementById('props-hint').style.display = 'none';
+  var cs  = iframe.contentWindow.getComputedStyle(el);
+  var sel = getCssSelector(el);
+
+  // Selector label
+  var sd = mk('div','psel'); sd.textContent = sel; propsPane.appendChild(sd);
+
+  // Alignment buttons
+  var as = mkSec('יישור');
+  var ag = mk('div','align-grid'); ag.style.position = 'relative';
+  var alignBtns = [
+    ['⊣','יישור שמאל',   function(){ alignEl('left',0); }],
+    ['⊢','יישור ימין',   function(){ var w=parseFloat(selEl.style.width)||selEl.offsetWidth; alignEl('left', CANVAS_W-w); }],
+    ['⊤','יישור עליון',  function(){ alignEl('top',0); }],
+    ['⊥','יישור תחתון',  function(){ var h=parseFloat(selEl.style.height)||selEl.offsetHeight; alignEl('top', CANVAS_H-h); }],
+    ['↔','מרכז אופקי',   function(){ var w=parseFloat(selEl.style.width)||selEl.offsetWidth; alignEl('left', Math.round((CANVAS_W-w)/2)); }],
+    ['↕','מרכז אנכי',    function(){ var h=parseFloat(selEl.style.height)||selEl.offsetHeight; alignEl('top', Math.round((CANVAS_H-h)/2)); }],
+  ];
+  alignBtns.forEach(function(a) {
+    var b = mk('button','ab'); b.title = a[1]; b.textContent = a[0];
+    b.onclick = function() { ensurePositioned(); a[2](); updateSelBox(); syncPositionInputs(); saveChange(); };
+    ag.appendChild(b);
+  });
+  as.appendChild(ag); propsPane.appendChild(as);
+
+  // Position
+  var ps = mkSec('מיקום');
+  addNumInput(ps, el, 'top',  'top',  sel, cs);
+  addNumInput(ps, el, 'left', 'left', sel, cs);
+  propsPane.appendChild(ps);
+
+  // Size
+  var ss = mkSec('גודל');
+  addNumInput(ss, el, 'width',  'width',  sel, cs);
+  addNumInput(ss, el, 'height', 'height', sel, cs);
+  propsPane.appendChild(ss);
+
+  // Text content
+  var isText = ['P','H1','H2','H3','H4','SPAN','BUTTON','LI','A','LABEL'].indexOf(el.tagName) !== -1;
+  if (isText && el.textContent.trim()) {
+    var ts = mkSec('תוכן טקסט');
+    var tw = mk('div','ptx-wrap');
+    var ta = mk('textarea','ptx'); ta.value = el.textContent;
+    ta.oninput = function() {
+      el.textContent = ta.value;
+      rec(sel, 'content', ta.value);
+    };
+    tw.appendChild(ta); ts.appendChild(tw); propsPane.appendChild(ts);
+  }
+
+  // Typography
+  var ys = mkSec('טיפוגרפיה');
+  addNumInput(ys, el, 'font-size',   'font-size',   sel, cs);
+  addNumInput(ys, el, 'line-height', 'line-height', sel, cs);
+  addSelectInput(ys, el, 'font-weight', 'font-weight', sel, cs, ['400','600','700','800']);
+  addColorInput(ys, el, 'color', 'color', sel, cs);
+  propsPane.appendChild(ys);
+
+  // Nudge hint
+  var nh = mk('div','pnudge-hint'); nh.textContent = '↑↓←→ = nudge 1px · Shift = 10px';
+  propsPane.appendChild(nh);
+
+  // Copy CSS
+  var cb = mk('button','pcopy'); cb.textContent = '📋 העתק CSS שינויים';
+  cb.onclick = copyCss; propsPane.appendChild(cb);
+}
+
+function alignEl(prop, val) {
+  selEl.style[prop] = Math.round(val) + 'px';
+  rec(getCssSelector(selEl), prop, selEl.style[prop]);
+}
+
+function mkSec(title) {
+  var s = mk('div','psec');
+  var h = mk('div','psec-t'); h.textContent = title;
+  s.appendChild(h); return s;
+}
+
+function addNumInput(sec, el, prop, label, sel, cs) {
+  var row = mk('div','prow');
+  var lbl = mk('span','plbl'); lbl.textContent = label; row.appendChild(lbl);
+  var inp = mk('input','pinp'); inp.type = 'text';
+  inp.value = el.style[prop] ? el.style[prop] : (cs.getPropertyValue(prop) || '');
+  inp.oninput = function() {
+    var v = inp.value.trim();
+    if (/^-?\d+(\.\d+)?$/.test(v)) v += 'px';
+    el.style[prop] = v;
+    rec(sel, prop, v);
+    updateSelBox();
+  };
+  propInputs[prop] = inp;
+  row.appendChild(inp); sec.appendChild(row);
+}
+
+function addSelectInput(sec, el, prop, label, sel, cs, opts) {
+  var row = mk('div','prow');
+  var lbl = mk('span','plbl'); lbl.textContent = label; row.appendChild(lbl);
+  var s = mk('select','pinp');
+  var cur = (el.style[prop] || cs.getPropertyValue(prop) || '').trim();
+  opts.forEach(function(o) {
+    var op = mk('option'); op.value = o; op.textContent = o;
+    if (cur === o) op.selected = true;
+    s.appendChild(op);
+  });
+  s.onchange = function() { el.style[prop] = s.value; rec(sel, prop, s.value); };
+  row.appendChild(s); sec.appendChild(row);
+}
+
+function addColorInput(sec, el, prop, label, sel, cs) {
+  var row = mk('div','prow');
+  var lbl = mk('span','plbl'); lbl.textContent = label; row.appendChild(lbl);
+  var inp = mk('input','pinp'); inp.type = 'color';
+  inp.value = rgbToHex(el.style[prop] || cs.getPropertyValue(prop)) || '#222222';
+  inp.oninput = function() { el.style[prop] = inp.value; rec(sel, prop, inp.value); };
+  row.appendChild(inp); sec.appendChild(row);
+}
+
+function syncPositionInputs() {
+  if (!selEl) return;
+  ['top','left','width','height'].forEach(function(p) {
+    if (propInputs[p]) propInputs[p].value = selEl.style[p] || '';
+  });
+}
+
+function saveChange() {
+  if (!selEl) return;
+  var s = getCssSelector(selEl);
+  ['top','left','width','height','position'].forEach(function(p) {
+    if (selEl.style[p]) rec(s, p, selEl.style[p]);
+  });
+}
+
+/* ════════════════════════════════════════════════════
+   UTILS
+════════════════════════════════════════════════════ */
+function mk(tag, cls) {
+  var el = document.createElement(tag); if (cls) el.className = cls; return el;
+}
+
+function rec(sel, prop, val) {
+  if (!changes[sel]) changes[sel] = {};
+  changes[sel][prop] = val;
+}
+
+var SKIP_CLS = new Set(['is-visible','is-active','is-selected','hidden','active','selected']);
+
+function getCssSelector(el) {
+  var doc = iframe.contentDocument;
+  var parts = []; var cur = el;
+  while (cur && cur !== doc.body && cur !== doc.documentElement) {
+    if (cur.id) { parts.unshift('#' + cur.id); break; }
+    var cls = Array.from(cur.classList)
+      .filter(function(c) { return !SKIP_CLS.has(c); })
+      .slice(0,3).map(function(c) { return '.' + c; }).join('');
+    parts.unshift(cur.tagName.toLowerCase() + cls);
+    cur = cur.parentElement;
+  }
+  return parts.join(' > ');
+}
+
+function rgbToHex(c) {
+  if (!c) return null;
+  if (/^#/.test(c)) return c.slice(0,7);
+  var m = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (!m) return null;
+  return '#' + [m[1],m[2],m[3]].map(function(x) { return (+x).toString(16).padStart(2,'0'); }).join('');
+}
+
+function copyCss() {
+  var keys = Object.keys(changes);
+  if (!keys.length) { alert('אין שינויים עדיין'); return; }
+  var lines = [];
+  keys.forEach(function(s) {
+    lines.push(s + ' {');
+    var props = changes[s];
+    Object.keys(props).forEach(function(p) {
+      if (p !== 'content') lines.push('  ' + p + ': ' + props[p] + ';');
+    });
+    lines.push('}'); lines.push('');
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(function() {
+    propsPane.querySelectorAll('.pcopy').forEach(function(b) {
+      b.textContent = '✓ הועתק!';
+      setTimeout(function() { b.textContent = '📋 העתק CSS שינויים'; }, 2000);
+    });
+  }).catch(function() {
+    prompt('העתיקו CSS:', lines.join('\n'));
+  });
+}
+
+/* ════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════ */
+buildPanel();
+fitToWindow();
+
+/* ════════════════════════════════════════════════════
+   VEE — Visual Element Editor
+════════════════════════════════════════════════════ */
+var veeActive      = false;
+var veeProxies     = [];   // array of proxy descriptor objects
+var veeSelected    = -1;
+var veeDragState   = null;
+var veeResizeState = null;
+var veeConfig      = {};   // exported config: { "7": { "hotspot-0": {…} } }
+var veeToggleBtn   = document.getElementById('vee-toggle-btn');
+var veePanelEl     = document.getElementById('vee-panel');
+var veePanelBody   = document.getElementById('vee-panel-body');
+
+var VEE_HS_LABELS = ['כדור','כובע קש','כוס','יהב','דג'];
+
+/* ── Lifecycle ───────────────────────────────────── */
+function veeIsSupported(n) { return n === 7 || n === 8; }
+
+function veeOnScreenChange(n) {
+  if (!veeIsSupported(n)) {
+    if (veeActive) veeDeactivate();
+    veeToggleBtn.style.display = 'none';
+    return;
+  }
+  veeToggleBtn.style.display = 'block';
+  if (veeActive) setTimeout(veeBuild, 150);
+}
+
+function veeToggle() {
+  veeActive = !veeActive;
+  veeToggleBtn.classList.toggle('is-active', veeActive);
+  if (veeActive) {
+    veePanelEl.classList.add('is-open');
+    requestAnimationFrame(function() { relayoutPreservingCenter(); veeBuild(); });
+  } else {
+    veeDeactivate();
+  }
+}
+
+function veeDeactivate() {
+  veeActive = false;
+  veeToggleBtn.classList.remove('is-active');
+  veePanelEl.classList.remove('is-open');
+  veeClearAll();
+  requestAnimationFrame(relayoutPreservingCenter);
+}
+
+function veeClearAll() {
+  veeProxies.forEach(function(p) { if (p.el.parentNode) p.el.parentNode.removeChild(p.el); });
+  veeProxies = [];
+  veeSelected = -1;
+  document.querySelectorAll('.vee-h').forEach(function(h) { h.parentNode.removeChild(h); });
+}
+
+/* ── Build proxies for current screen ───────────── */
+function veeBuild() {
+  veeClearAll();
+  veePanelBody.innerHTML = '<div style="padding:20px 12px;font-size:12px;color:#6b7280;text-align:center;line-height:1.7">לחצו על אלמנט<br>לבחירה ועריכה</div>';
+  var doc = iframe.contentDocument;
+  if (!doc) return;
+  var n = devScreen;
+  var screenEl = doc.querySelector('[data-screen="' + n + '"]');
+  if (!screenEl) return;
+
+  var wrapSel = (n === 7) ? '.s7-img-wrap' : '.s8-img-wrap';
+  var wrapEl  = screenEl.querySelector(wrapSel);
+  if (!wrapEl) return;
+
+  // Hotspots
+  screenEl.querySelectorAll('.s7-hs').forEach(function(el, i) {
+    veeAddProxy({
+      iframeEl: el, wrapEl: wrapEl,
+      type: 'hotspot', key: 'hotspot-' + i,
+      label: VEE_HS_LABELS[i] || ('נקודה ' + i),
+      mode: 'leftTop', canResize: false
+    });
+  });
+
+  // Fish bubble
+  var bubbleEl = screenEl.querySelector('.s7-fish-bubble');
+  if (bubbleEl) {
+    bubbleEl.style.opacity   = '1';
+    bubbleEl.style.transform = 'scale(1)';
+    veeAddProxy({
+      iframeEl: bubbleEl, wrapEl: wrapEl,
+      type: 'bubble', key: 'fish-bubble',
+      label: 'בועת דג',
+      mode: 'rightBottom', canResize: true
+    });
+  }
+
+  veePositionAllProxies();
+}
+
+function veeAddProxy(def) {
+  var idx = veeProxies.length;
+  var el  = document.createElement('div');
+  el.className    = 'vee-proxy vee-proxy--' + def.type;
+  el.title        = def.label;
+  el.dataset.idx  = idx;
+  document.body.appendChild(el);
+
+  var proxy = {
+    el: el, iframeEl: def.iframeEl, wrapEl: def.wrapEl,
+    type: def.type, key: def.key, label: def.label,
+    mode: def.mode, canResize: def.canResize, idx: idx
+  };
+
+  el.addEventListener('mousedown', function(e) {
+    if (e.button !== 0) return;
+    e.preventDefault(); e.stopPropagation();
+    veeSelect(idx);
+    veeStartDrag(e, proxy);
+  });
+
+  veeProxies.push(proxy);
+}
+
+/* ── Positioning ─────────────────────────────────── */
+function veePositionProxy(proxy) {
+  var ir = iframeRect();
+  var s  = ir.width / CANVAS_W;
+  var el = proxy.el;
+
+  if (proxy.type === 'hotspot') {
+    var wr = proxy.wrapEl.getBoundingClientRect();
+    var lp = parseFloat(proxy.iframeEl.style.left) || 0;
+    var tp = parseFloat(proxy.iframeEl.style.top)  || 0;
+    var ix = wr.left + lp / 100 * wr.width;
+    var iy = wr.top  + tp / 100 * wr.height;
+    el.style.left   = Math.round(ir.left + ix * s - 14) + 'px';
+    el.style.top    = Math.round(ir.top  + iy * s - 14) + 'px';
+    el.style.width  = '28px';
+    el.style.height = '28px';
+  } else {
+    // Bubble: use its visual bounding rect (in iframe coords, scale to parent)
+    var br = proxy.iframeEl.getBoundingClientRect();
+    el.style.left   = Math.round(ir.left + br.left   * s) + 'px';
+    el.style.top    = Math.round(ir.top  + br.top    * s) + 'px';
+    el.style.width  = Math.max(4, Math.round(br.width  * s)) + 'px';
+    el.style.height = Math.max(4, Math.round(br.height * s)) + 'px';
+  }
+}
+
+function veePositionAllProxies() {
+  veeProxies.forEach(veePositionProxy);
+  if (veeSelected >= 0) veeUpdateHandles();
+}
+
+/* ── Selection ───────────────────────────────────── */
+function veeSelect(idx) {
+  if (veeSelected >= 0 && veeProxies[veeSelected]) {
+    veeProxies[veeSelected].el.classList.remove('is-selected');
+  }
+  veeSelected = idx;
+  var proxy = veeProxies[idx];
+  if (!proxy) return;
+  proxy.el.classList.add('is-selected');
+  veeRenderPanel(proxy);
+  veeUpdateHandles();
+}
+
+/* ── Resize handles ──────────────────────────────── */
+function veeUpdateHandles() {
+  document.querySelectorAll('.vee-h').forEach(function(h) { h.parentNode.removeChild(h); });
+  if (veeSelected < 0) return;
+  var proxy = veeProxies[veeSelected];
+  if (!proxy || !proxy.canResize) return;
+
+  ['nw','n','ne','e','se','s','sw','w'].forEach(function(d) {
+    var h = document.createElement('div');
+    h.className = 'vee-h'; h.dataset.d = d;
+    h.addEventListener('mousedown', function(e) {
+      e.preventDefault(); e.stopPropagation();
+      veeStartResize(e, proxy, d);
+    });
+    document.body.appendChild(h);
+    veePlaceHandle(h, d, proxy);
+  });
+}
+
+function veePlaceHandle(h, d, proxy) {
+  var l  = parseInt(proxy.el.style.left);
+  var t  = parseInt(proxy.el.style.top);
+  var w  = parseInt(proxy.el.style.width);
+  var ht = parseInt(proxy.el.style.height);
+  var hx = l, hy = t;
+  if (d === 'n'  || d === 's')  hx = l + w/2;
+  if (d === 'ne' || d === 'e' || d === 'se') hx = l + w;
+  if (d === 'nw' || d === 'n'  || d === 'ne') hy = t;
+  if (d === 'sw' || d === 's'  || d === 'se') hy = t + ht;
+  if (d === 'w'  || d === 'e')  hy = t + ht/2;
+  if (d === 'nw' || d === 'w'  || d === 'sw') hx = l;
+  h.style.left = Math.round(hx - 5) + 'px';
+  h.style.top  = Math.round(hy - 5) + 'px';
+}
+
+/* ── Drag ─────────────────────────────────────────── */
+function veeStartDrag(e, proxy) {
+  veeDragState = {
+    proxy: proxy,
+    startX: e.clientX, startY: e.clientY,
+    origL: parseFloat(proxy.iframeEl.style.left)   || 0,
+    origT: parseFloat(proxy.iframeEl.style.top)    || 0,
+    origR: parseFloat(proxy.iframeEl.style.right)  || 6,
+    origB: parseFloat(proxy.iframeEl.style.bottom) || 14
+  };
+  edLock.style.display = 'block';
+  edLock.style.cursor  = 'move';
+}
+
+/* ── Resize ───────────────────────────────────────── */
+function veeStartResize(e, proxy, dir) {
+  var s = iframeScale();
+  veeResizeState = {
+    proxy: proxy, dir: dir,
+    startX: e.clientX, startY: e.clientY,
+    origW: proxy.iframeEl.offsetWidth || 200,
+    origR: parseFloat(proxy.iframeEl.style.right)  || 6,
+    origB: parseFloat(proxy.iframeEl.style.bottom) || 14
+  };
+  edLock.style.display = 'block';
+  edLock.style.cursor  = dir + '-resize';
+}
+
+/* ── Mouse events (VEE drag + resize) ────────────── */
+document.addEventListener('mousemove', function(e) {
+  if (veeDragState) {
+    var ds  = veeDragState;
+    var ir  = iframeRect();
+    var s   = ir.width / CANVAS_W;
+    var wr  = ds.proxy.wrapEl.getBoundingClientRect();
+    var wWp = wr.width  * s;
+    var wHp = wr.height * s;
+    var dx  = e.clientX - ds.startX;
+    var dy  = e.clientY - ds.startY;
+    var dxP = wWp > 0 ? dx / wWp * 100 : 0;
+    var dyP = wHp > 0 ? dy / wHp * 100 : 0;
+    if (ds.proxy.mode === 'rightBottom') {
+      ds.proxy.iframeEl.style.right  = Math.max(0, Math.min(100, ds.origR - dxP)).toFixed(1) + '%';
+      ds.proxy.iframeEl.style.bottom = Math.max(0, Math.min(100, ds.origB - dyP)).toFixed(1) + '%';
+    } else {
+      ds.proxy.iframeEl.style.left = Math.max(0, Math.min(100, ds.origL + dxP)).toFixed(1) + '%';
+      ds.proxy.iframeEl.style.top  = Math.max(0, Math.min(100, ds.origT + dyP)).toFixed(1) + '%';
+    }
+    veePositionProxy(ds.proxy);
+    veeUpdateHandles();
+    if (veeSelected === ds.proxy.idx) veeRefreshPanelInputs(ds.proxy);
+    return;
+  }
+
+  if (veeResizeState) {
+    var rs  = veeResizeState;
+    var s2  = iframeScale();
+    var dx2 = (e.clientX - rs.startX) / s2;
+    var d   = rs.dir;
+    var nw  = rs.origW;
+    if (d.indexOf('e') !== -1) nw = Math.max(60, rs.origW + dx2);
+    if (d.indexOf('w') !== -1) nw = Math.max(60, rs.origW - dx2);
+    rs.proxy.iframeEl.style.width = Math.round(nw) + 'px';
+    veePositionProxy(rs.proxy);
+    veeUpdateHandles();
+    if (veeSelected === rs.proxy.idx) veeRefreshPanelInputs(rs.proxy);
+  }
+});
+
+document.addEventListener('mouseup', function() {
+  if (veeDragState || veeResizeState) {
+    veeDragState = null; veeResizeState = null;
+    edLock.style.display = 'none';
+  }
+});
+
+/* ── Properties panel ────────────────────────────── */
+function veeRenderPanel(proxy) {
+  var html = '<div class="vee-ph-name">' + proxy.label + '</div>';
+  html += '<div class="vee-ph-type">' + proxy.type + ' · שקף ' + devScreen + '</div>';
+  html += '<div class="vee-ph-sep"></div>';
+  html += veeGetInputsHtml(proxy);
+  html += '<div class="vee-ph-sep" style="margin-top:8px"></div>';
+  html += '<button class="vee-export-btn" onclick="veeExport()">📋 ייצוא Config</button>';
+  html += '<button class="vee-reset-btn" onclick="veeReset(' + proxy.idx + ')">↺ איפוס מיקום</button>';
+  veePanelBody.innerHTML = html;
+}
+
+function veeGetInputsHtml(proxy) {
+  var el = proxy.iframeEl;
+  var html = '';
+  if (proxy.mode === 'leftTop') {
+    var lp = parseFloat(el.style.left) || 0;
+    var tp = parseFloat(el.style.top)  || 0;
+    html += veeInpRow('שמאל %', lp.toFixed(1), 'veePropChange("left",' + proxy.idx + ',this)');
+    html += veeInpRow('עליון %', tp.toFixed(1), 'veePropChange("top",'  + proxy.idx + ',this)');
+  } else {
+    var rp = parseFloat(el.style.right)  || 6;
+    var bp = parseFloat(el.style.bottom) || 14;
+    var wp = el.style.width ? parseFloat(el.style.width) : el.offsetWidth;
+    html += veeInpRow('ימין %',   rp.toFixed(1), 'veePropChange("right",'  + proxy.idx + ',this)');
+    html += veeInpRow('תחתון %',  bp.toFixed(1), 'veePropChange("bottom",' + proxy.idx + ',this)');
+    html += veeInpRow('רוחב px',  Math.round(wp), 'veePropChange("width",' + proxy.idx + ',this)', 1);
+  }
+  return html;
+}
+
+function veeInpRow(label, value, onchange, noPercent) {
+  return '<div class="vee-row">' +
+    '<span class="vee-lbl">' + label + '</span>' +
+    '<input class="vee-inp" type="number" step="' + (noPercent ? 1 : 0.5) + '" value="' + value + '" onchange="' + onchange + '">' +
+    '</div>';
+}
+
+function veeRefreshPanelInputs(proxy) {
+  var inputs = veePanelBody.querySelectorAll('.vee-inp');
+  var el = proxy.iframeEl;
+  if (proxy.mode === 'leftTop') {
+    if (inputs[0]) inputs[0].value = (parseFloat(el.style.left) || 0).toFixed(1);
+    if (inputs[1]) inputs[1].value = (parseFloat(el.style.top)  || 0).toFixed(1);
+  } else {
+    if (inputs[0]) inputs[0].value = (parseFloat(el.style.right)  || 6).toFixed(1);
+    if (inputs[1]) inputs[1].value = (parseFloat(el.style.bottom) || 14).toFixed(1);
+    if (inputs[2]) inputs[2].value = Math.round(el.style.width ? parseFloat(el.style.width) : el.offsetWidth);
+  }
+}
+
+function veePropChange(prop, idx, inp) {
+  var proxy = veeProxies[idx]; if (!proxy) return;
+  var v = parseFloat(inp.value) || 0;
+  if (prop === 'width') {
+    proxy.iframeEl.style.width = Math.max(60, Math.round(v)) + 'px';
+  } else {
+    proxy.iframeEl.style[prop] = Math.max(0, Math.min(100, v)).toFixed(1) + '%';
+  }
+  veePositionProxy(proxy);
+  veeUpdateHandles();
+}
+
+/* ── Export ──────────────────────────────────────── */
+function veeExport() {
+  var cfg = {};
+  var n = String(devScreen);
+  cfg[n] = {};
+  veeProxies.forEach(function(proxy) {
+    var el    = proxy.iframeEl;
+    var entry = { type: proxy.type };
+    if (proxy.mode === 'leftTop') {
+      entry.left = el.style.left || '0%';
+      entry.top  = el.style.top  || '0%';
+    } else {
+      entry.right  = el.style.right  || '6%';
+      entry.bottom = el.style.bottom || '14%';
+      var w = el.style.width ? parseFloat(el.style.width) : el.offsetWidth;
+      entry.width  = Math.round(w) + 'px';
+    }
+    cfg[n][proxy.key] = entry;
+  });
+  veeConfig = cfg;
+  // Live preview in iframe
+  iframe.contentWindow.postMessage({ type: 'veeConfig', config: veeConfig }, '*');
+
+  var code = 'window.LAYOUT_CONFIG = ' + JSON.stringify(cfg, null, 2) + ';';
+  navigator.clipboard.writeText(code).then(function() {
+    var btn = veePanelBody.querySelector('.vee-export-btn');
+    if (btn) {
+      btn.textContent = '✓ הועתק!';
+      setTimeout(function() { btn.textContent = '📋 ייצוא Config'; }, 2000);
+    }
+  }).catch(function() { prompt('העתיקו:', code); });
+}
+
+/* ── Reset ───────────────────────────────────────── */
+function veeReset(idx) {
+  var proxy = veeProxies[idx]; if (!proxy) return;
+  var el = proxy.iframeEl;
+  el.style.left = ''; el.style.top    = '';
+  el.style.right= ''; el.style.bottom = ''; el.style.width = '';
+  if (proxy.type === 'bubble') { el.style.opacity = ''; el.style.transform = ''; }
+  veePositionProxy(proxy);
+  veeUpdateHandles();
+  veeRenderPanel(proxy);
+}
+
+/* ── Reposition on window resize ─────────────────── */
+window.addEventListener('resize', function() {
+  if (veeActive) requestAnimationFrame(veePositionAllProxies);
+});
+</script>
+</body>
+</html>

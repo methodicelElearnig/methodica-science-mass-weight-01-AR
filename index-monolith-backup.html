@@ -1,0 +1,3751 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>מסה ומשקל — יעד 4</title>
+  <style>
+    @font-face {
+      font-family: 'Assistant';
+      src: url('assets/fonts/Assistant-VariableFont_wght.ttf') format('truetype-variations'), url('assets/fonts/Assistant-VariableFont_wght.ttf') format('truetype');
+      font-weight: 200 800;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Open Sans';
+      src: url('assets/fonts/OpenSans-Bold.woff2') format('woff2');
+      font-weight: 700;
+      font-display: swap;
+    }
+  </style>
+  <link rel="stylesheet" href="css/style.css?v=37">
+  <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════
+     DEV NAV TOOLBAR — TEMPORARY, FOR QA ONLY
+     Not part of the lomda. Remove this whole block before publishing
+     (or set DEV_NAV_ENABLED = false in js/main.js to hide it without
+     deleting anything). Matching CSS: css/style.css section
+     "DEV NAV TOOLBAR". Matching JS: js/main.js section "DEV NAV TOOLBAR".
+     ══════════════════════════════════════════════════════════════ -->
+<div id="dev-nav-bar" dir="ltr">
+  <span class="dev-nav-tag">DEV</span>
+  <button type="button" id="dev-nav-prev" class="dev-nav-btn" aria-label="מסך קודם">◀</button>
+  <span id="dev-nav-label">0 / 49</span>
+  <button type="button" id="dev-nav-next" class="dev-nav-btn" aria-label="מסך הבא">▶</button>
+  <select id="dev-nav-select" aria-label="מעבר ישיר למסך"></select>
+</div>
+<!-- ══════════ END DEV NAV TOOLBAR ══════════ -->
+
+<div id="app">
+
+  <!-- ── SCREEN 0: TransitionScreen — פתיחה ─────────────────── -->
+  <section class="screen active" data-screen="0">
+
+    <!-- Content area — Figma node 1:223 -->
+    <!-- left: calc(16.67% + 21.67px) = 235px at 1280px canvas -->
+    <!-- top: 91px, width: 810px -->
+    <div class="s0-content">
+
+      <!-- Text block — Figma node 1:226 -->
+      <div class="s0-text">
+        <div class="s0-slot1"></div>
+        <h1 class="s0-title s12-anim" id="s0-title">מסה, משקל וההבדלים ביניהם</h1>
+        <p class="s0-subtitle s12-anim" id="s0-subtitle">בואו נלמד על זה!</p>
+      </div>
+
+      <!-- Character GIF — Figma node 2:31, 440×440 -->
+      <div class="s0-char-wrap">
+        <video src="assets/video/scales.mp4" autoplay loop muted playsinline class="s0-char-gif s12-anim" id="s0-char" aria-hidden="true"></video>
+      </div>
+
+    </div>
+
+    <!-- Navigation bar -->
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button class="btn-continue btn-advance" id="s0-continue" disabled onclick="goTo(1)">נתחיל</button>
+        </div>
+        <div class="nav-back-area"><!-- no back button on first screen --></div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 0 ─────────────────────────────────────────── -->
+
+  <!-- ── SCREEN 1: Hook — 4 דמויות ────────────────────────────── -->
+  <section class="screen" data-screen="1">
+
+    <!-- Title -->
+    <h1 class="s1-title" id="s1-title">
+      <span class="s1-regular">אחד מהמשפטים הבאים </span><span class="s1-bold">אינו נכון מדעית</span><span class="s1-regular">, מהו?</span>
+    </h1>
+    <p class="s1-instruction" id="s1-instruction">לחצו על הדמות</p>
+
+    <!-- Group 1: suitcase/אלין — wrapper left=79 top=280 -->
+    <div class="s1-group" id="hc1" onclick="hookSelect(1)">
+      <div class="s1-bub s1-bub-1">
+        <div class="s1-bub-body">המזוודה שלי היא 23 קילוגרם, בדיוק בגבול המותר.</div>
+        <div class="s1-bub-tail"><img class="s1-tail-img" src="assets/img/hook-bubble-tail-blue.svg" alt=""></div>
+      </div>
+      <div class="s1-char s1-char-1">
+        <img src="assets/img/hook-char-suitcase.png" alt="אלין">
+      </div>
+    </div>
+
+    <!-- Group 3: 2nd from left — wrapper left=356 top=280 (correct — אוריאל, science-magazine reader) -->
+    <div class="s1-group" id="hc3" onclick="hookSelect(3)">
+      <div class="s1-bub s1-bub-3">
+        <div class="s1-bub-body">אתמול קראתי שעל הירח קל יותר לקפוץ מאשר על כדור הארץ.</div>
+        <div class="s1-bub-tail"><img class="s1-tail-img" src="assets/img/hook-bubble-tail-blue.svg" alt=""></div>
+      </div>
+      <div class="s1-char s1-char-3">
+        <img src="assets/img/hook-char-phone.png" alt="אוריאל">
+      </div>
+    </div>
+
+    <!-- Group 2: 3rd from left — wrapper left=666 top=280 (wrong answer — חן, holds a phone) -->
+    <div class="s1-group" id="hc2" onclick="hookSelect(2)">
+      <div class="s1-bub s1-bub-2">
+        <div class="s1-bub-body">שקלתי את הטלפון הנייד שלי. הוא שוקל 174 גרם בדיוק.</div>
+        <div class="s1-bub-tail"><img class="s1-tail-img" id="s1-tail-2" src="assets/img/hook-bubble-tail-blue.svg" alt=""></div>
+      </div>
+      <div class="s1-char s1-char-2">
+        <img src="assets/img/hook-char-book.png" alt="חן">
+      </div>
+    </div>
+
+    <!-- Group 4: package/אביתר — wrapper left=952 top=254 -->
+    <div class="s1-group" id="hc4" onclick="hookSelect(4)">
+      <div class="s1-bub s1-bub-4">
+        <div class="s1-bub-body">קיבלתי את החבילה שהזמנתי. היה כתוב על הקופסה 500 גרם. בדקתי, זה באמת 500 גרם.</div>
+        <div class="s1-bub-tail"><img class="s1-tail-img" src="assets/img/hook-bubble-tail-blue.svg" alt=""></div>
+      </div>
+      <div class="s1-char s1-char-4">
+        <img src="assets/img/hook-char-package.png" alt="אביתר">
+      </div>
+    </div>
+
+    <!-- Orange mascot + speech bubble — hidden until feedback -->
+    <div id="hook-orange-wrap" class="hook-orange-wrap hidden">
+      <div class="hook-orange-crop">
+        <video src="assets/video/point.mp4" autoplay loop muted playsinline aria-hidden="true"></video>
+      </div>
+      <div class="hook-orange-bubble">
+        <img class="hook-orange-bub-img" src="assets/img/hook-orange-bubble.svg" alt="">
+        <p class="hook-orange-text">למה המשפט של חן לא נכון מדעית? המשיכו ותגלו</p>
+      </div>
+    </div>
+
+    <!-- Navigation bar -->
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="hook-btn" class="btn-continue" disabled onclick="hookCheck()">צדקתי?</button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(0)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 1 ─────────────────────────────────────────── -->
+
+  <!-- ── SCREEN 2: Hook Popup — "נצא לדרך?" ──────────────────── -->
+  <!-- Figma node 11:98. White bg, one blue card, button → method selection -->
+  <section class="screen" data-screen="2">
+
+    <!-- Blue card — Figma node 11:112: left=190 top=222 w=900 h=293 r=48 -->
+    <!-- Staged entrance: card/bubble → body paragraphs → bold sentence → continue enables -->
+    <div class="s2-card s2-anim" id="s2-card">
+      <div class="s2-text-block">
+        <div class="s2-body s2-anim" id="s2-body">
+          <p>המשפט שחן אמרה - "שקלתי את הטלפון הנייד שלי. הוא שוקל 174 גרם בדיוק",</p>
+          <p>נשמע טבעי לגמרי בשפה היומיומית, אבל מבחינה מדעית הוא לא מדויק.</p>
+          <p>צריך לומר: "המסה של הנייד שלי היא 174 גרם".</p>
+        </div>
+        <p class="s2-bold s2-anim" id="s2-bold"><strong>תרצו לדעת למה? ומה ההבדל בין משקל למסה? זה מה שנלמד ביחידה הזו!</strong></p>
+      </div>
+    </div>
+
+    <!-- Navigation bar -->
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button class="btn-continue btn-advance" id="s2-continue" disabled onclick="goTo(SCREEN_METHOD)">נצא לדרך?</button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_HOOK)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 2 ─────────────────────────────────────────── -->
+
+  <!-- ── SCREEN 3: TwoOptionSelection — בחירת מסלול הקניה ────────── -->
+  <section class="screen" data-screen="3" id="s3">
+
+    <div class="s3-content">
+      <div class="s3-head s3-anim">
+        <h1 class="s3-title">מסה, משקל וההבדלים ביניהם</h1>
+        <p class="s3-subtitle">איך תרצו ללמוד?</p>
+      </div>
+
+      <div class="s3-cards" role="radiogroup" aria-label="בחירת מסלול לימוד">
+
+        <!-- כרטיס ימני: לצפות בסרטון (video path) -->
+        <!-- Gif starts decoding/playing as soon as the screen is entered (see tosEnter()),
+             so by the time the learner hovers it's already mid-motion, not frozen on frame 1.
+             Hover/focus only cross-fades to the already-running gif — no src swap, no restart. -->
+        <div class="s3-card s3-anim" role="radio" aria-checked="false" tabindex="0"
+             data-value="video" onclick="tosSelect(this)" onkeydown="if(event.key==='Enter'||event.key===' ')tosSelect(this)">
+          <div class="s3-card-img">
+            <img src="assets/img/watch.png" alt="דמות כתומה עם פופקורן" class="s3-card-img-static">
+            <video data-video-src="assets/video/popcorn.mp4" muted loop playsinline class="s3-card-img-gif" aria-hidden="true"></video>
+          </div>
+          <span class="s3-card-label">לצפות בסרטון</span>
+        </div>
+
+        <!-- כרטיס שמאלי: לקרוא טקסט (text path) -->
+        <div class="s3-card s3-anim" role="radio" aria-checked="false" tabindex="0"
+             data-value="text" onclick="tosSelect(this)" onkeydown="if(event.key==='Enter'||event.key===' ')tosSelect(this)">
+          <div class="s3-card-img">
+            <img src="assets/img/read.png" alt="דמות כתומה קוראת ספר" class="s3-card-img-static">
+            <video data-video-src="assets/video/reading.mp4" muted loop playsinline class="s3-card-img-gif" aria-hidden="true"></video>
+          </div>
+          <span class="s3-card-label">לקרוא טקסט</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Navigation bar -->
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s3-continue" class="btn-continue btn-advance" disabled onclick="tosAdvance()">בחרתי</button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_HOOK_POPUP)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 3 ─────────────────────────────────────────── -->
+
+  <!-- ── SCREEN 4: VideoScreen — הקניה באמצעות וידאו ─────────────── -->
+  <!-- State 1 (watching): placeholder shown, continue disabled (gray)   -->
+  <!-- State 2 (done):     placeholder stays, continue enabled (blue)    -->
+  <section class="screen" data-screen="4" id="s4">
+
+    <div class="s4-content">
+
+      <!-- Text section: title only — mode toggle moved to the nav bar, below
+           the divider, same placement as the text-path (screen 5) toggle -->
+      <div class="s4-text-section">
+        <h1 class="s4-title s4-anim" id="s4-title">מסה, משקל וההבדלים ביניהם</h1>
+      </div>
+
+      <!-- Video: 646×363, 16:9. Autoplays on entry; "המשך" stays disabled
+           until the YouTube player reports the ENDED state (see
+           enterScreen4()/onYouTubeIframeAPIReady() in main.js). -->
+      <div class="s4-video-placeholder s4-anim" id="s4-placeholder">
+        <iframe id="s4-video" class="s4-video"
+                src="https://www.youtube.com/embed/R1cj6siRMoE?enablejsapi=1&rel=0&modestbranding=1&playsinline=1"
+                title="סרטון: מסה, משקל וההבדלים ביניהם"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen></iframe>
+      </div>
+
+    </div><!-- /.s4-content -->
+
+    <!-- Navigation bar -->
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <!-- disabled = state 1 (gray); enabled = state 2 (blue gradient) -->
+          <button id="s4-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_VIDEO + 1)">המשך</button>
+        </div>
+
+        <!-- Mode-switch toggle — blue pill, RTL: right tab first in DOM -->
+        <div class="s4-toggle">
+          <!-- Active tab: right side, white bg, blue text + blue video icon -->
+          <button class="s4-tab s4-tab--active" onclick="s4SwitchMode('video')">
+            <svg width="26" height="20" viewBox="0 0 26 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="1" width="16" height="18" rx="3" stroke="#019de5" stroke-width="1.5"/>
+              <path d="M18 7L24.5 4V16L18 13V7Z" stroke="#019de5" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+            <span>לצפות בסרטון</span>
+          </button>
+          <!-- Inactive tab: left side, transparent on blue, white text + white icon -->
+          <button class="s4-tab" onclick="s4SwitchMode('text')">
+            <svg width="20" height="26" viewBox="0 0 20 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="1" width="18" height="24" rx="3" stroke="white" stroke-width="1.5"/>
+              <line x1="5" y1="9" x2="15" y2="9" stroke="white" stroke-width="1.5"/>
+              <line x1="5" y1="14" x2="15" y2="14" stroke="white" stroke-width="1.5"/>
+              <line x1="5" y1="19" x2="11" y2="19" stroke="white" stroke-width="1.5"/>
+            </svg>
+            <span>לקרוא טקסט</span>
+          </button>
+        </div>
+
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_METHOD)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 4 ─────────────────────────────────────────────── -->
+
+  <!-- ── SCREEN 5: Accordion — מסלול קריאה (Text Path) ───────────── -->
+  <!-- Unlock rule: all 4 items must be opened (once) before המשך enables -->
+  <section class="screen" data-screen="5" id="s5">
+
+    <div class="s5-content">
+
+      <p class="s5-instruction s5-anim">קראו בריכוז מהי מסה ומהו משקל (לחצו על + לפתיחה):</p>
+
+      <!-- Group 1 — מסה -->
+      <div class="s5-accordion">
+
+        <div class="s5-item s5-anim" id="s5-item-0">
+          <button class="s5-header" onclick="s5Toggle(0)">
+            <span class="s5-label">מהי מסה?</span>
+            <span class="s5-icon" id="s5-icon-0">+</span>
+          </button>
+          <div class="s5-body" id="s5-body-0">
+            <p>מסה היא כמות החומר בגוף כלשהו (למשל, אדם, אבן, חיה, או חפץ).</p>
+          </div>
+        </div>
+
+        <div class="s5-item s5-anim" id="s5-item-1">
+          <button class="s5-header" onclick="s5Toggle(1)">
+            <span class="s5-label">יחידות המידה של מסה</span>
+            <span class="s5-icon" id="s5-icon-1">+</span>
+          </button>
+          <div class="s5-body" id="s5-body-1">
+            <p><strong>מיליגרם (מ"ג):</strong> לחפצים קלים מאוד, כמו נוצה.</p>
+            <p><strong>גרם (ג'):</strong> לחפצים קלים, כמו טלפון נייד או עיפרון.</p>
+            <p><strong>קילוגרם (ק"ג):</strong> לחפצים כבדים יותר, כמו תיק או בן אדם.</p>
+            <p><strong>טון:</strong> לחפצים כבדים מאוד, כמו מכונית או מטוס.</p>
+          </div>
+        </div>
+
+      </div><!-- /.s5-accordion group 1 -->
+
+      <!-- Group 2 — משקל -->
+      <div class="s5-accordion s5-accordion--gap">
+
+        <div class="s5-item s5-anim" id="s5-item-2">
+          <button class="s5-header" onclick="s5Toggle(2)">
+            <span class="s5-label">מהו משקל?</span>
+            <span class="s5-icon" id="s5-icon-2">+</span>
+          </button>
+          <div class="s5-body" id="s5-body-2">
+            <p>משקל הוא הכוח שהכבידה מפעילה על גוף בעל מסה.</p>
+            <p>בכל גרם שמימי (כמו כדור הארץ, הירח, או כל כוכב אחר) קיים כוח כבידה אחר שמשפיע על הגופים בקרבתו.</p>
+            <p>ככל שכוח הכבידה חזק יותר, המשקל של הגוף באותו גרם שמיים יהיה גדול יותר, ולהפך.</p>
+            <p>למשל, אדם שנמצא על כדור הארץ, בו כוח הכבידה הוא חזק יחסית למקומות אחרים בחלל, משקלו יהיה רב יותר, לעומת מצב בו יעמוד על הירח, בו כוח הכבידה חלש פי 6. זו הסיבה שבירח נרגיש קלים יותר.</p>
+          </div>
+        </div>
+
+        <div class="s5-item s5-anim" id="s5-item-3">
+          <button class="s5-header" onclick="s5Toggle(3)">
+            <span class="s5-label">יחידות המידה של המשקל</span>
+            <span class="s5-icon" id="s5-icon-3">+</span>
+          </button>
+          <div class="s5-body" id="s5-body-3">
+            <p>בשפה היומיומית אנחנו רגילים לדבר בקילוגרמים ובגרמים כשמתארים משקל, אבל בשפה המדעית זה לא מדויק, כי אלו יחידות שמתארות מסה.</p>
+            <p>משקל נמדד ביחידות הנקראות ניוטון (N), על שם המדען אייזק ניוטון שגילה את חוק הכבידה.</p>
+            <p>בחיי היומיום אנחנו לא רגילים לשמוע "אני שוקל 784 ניוטון", אבל זה המינוח המדעי המדויק.</p>
+          </div>
+        </div>
+
+      </div><!-- /.s5-accordion group 2 -->
+
+    </div><!-- /.s5-content -->
+
+    <!-- Nav bar — toggle centered between המשך and חזרה -->
+    <nav class="nav-bar">
+      <div class="nav-inner">
+
+        <div class="nav-continue-area">
+          <button id="s5-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_ACCORDION + 1)">המשך</button>
+        </div>
+
+        <!-- Mode toggle centered in nav bar — video tab always first in DOM
+             (physically right, matching screen 4) so the two tabs never
+             swap position between screens; only the active state differs. -->
+        <div class="s4-toggle">
+          <button class="s4-tab" onclick="s5SwitchMode('video')">
+            <svg width="26" height="20" viewBox="0 0 26 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="1" width="16" height="18" rx="3" stroke="white" stroke-width="1.5"/>
+              <path d="M18 7L24.5 4V16L18 13V7Z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+            <span>לצפות בסרטון</span>
+          </button>
+          <button class="s4-tab s4-tab--active" onclick="s5SwitchMode('text')">
+            <svg width="20" height="26" viewBox="0 0 20 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="1" width="18" height="24" rx="3" stroke="#019de5" stroke-width="1.5"/>
+              <line x1="5" y1="9" x2="15" y2="9" stroke="#019de5" stroke-width="1.5"/>
+              <line x1="5" y1="14" x2="15" y2="14" stroke="#019de5" stroke-width="1.5"/>
+              <line x1="5" y1="19" x2="11" y2="19" stroke="#019de5" stroke-width="1.5"/>
+            </svg>
+            <span>לקרוא טקסט</span>
+          </button>
+        </div>
+
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_METHOD)">חזרה</button>
+        </div>
+
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 5 ─────────────────────────────────────────────── -->
+
+
+  <!-- ── SCREEN 7: Astronaut on Earth — clickable reveal ─────────── -->
+  <section class="screen" data-screen="6" id="s6">
+
+    <div class="s6-layout">
+
+      <!-- Left half: empty (moon astronaut will appear here in screen 8) -->
+      <div class="s6-left-panel"></div>
+
+      <!-- Divider -->
+      <div class="s6-divider"></div>
+
+      <!-- Right half: Earth astronaut + text -->
+      <!-- Staged entrance: instruction text first, then image (see enterScreen6()) -->
+      <div class="s6-right-panel">
+        <p class="s6-instructions s6-anim" id="s6-instructions" dir="rtl">אסטרונאוט מתכונן לטיסה לירח.<br><strong>לחצו על התמונה כדי לגלות מהם המסה והמשקל שלו על כדור הארץ.</strong></p>
+        <div class="s6-astro-wrap s6-anim" id="s6-earth-wrap" onclick="s6RevealEarth()">
+          <img class="s6-astro-img" src="assets/img/astro-earth.png" alt="אסטרונאוט על כדור הארץ">
+        </div>
+        <div class="s6-info-bubble" id="s6-earth-bubble" dir="rtl">
+          <strong>מסה:</strong> 75 ק"ג<br>
+          <strong>משקל:</strong> מסה כפול עוצמת כוח הכבידה בכדור הארץ.
+        </div>
+      </div>
+
+    </div><!-- /.s7-layout -->
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s6-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_MOON)">שיגור לירח</button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_ACCORDION)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 7 ─────────────────────────────────────────────── -->
+
+  <!-- ── SCREEN 8: Astronaut on Moon added ───────────────────────── -->
+  <section class="screen" data-screen="7" id="s7">
+
+    <div class="s7-layout">
+
+      <!-- Left half: Moon astronaut (clickable) -->
+      <!-- Staged entrance: Earth panel (already-known info) first, then this
+           panel's label, then the clickable image last (see enterScreen7()) -->
+      <div class="s7-left-panel">
+        <p class="s7-panel-label s7-anim" id="s7-moon-label" dir="rtl">האסטרונאוט שוגר לירח.<br><strong>לחצו על התמונה כדי לגלות מהם המסה והמשקל שלו על הירח.</strong></p>
+        <div class="s7-astro-wrap s7-anim-op" onclick="s6RevealMoon()" id="s7-moon-wrap">
+          <button class="img-zoom-btn" type="button" aria-label="הגדלת התמונה"
+                  data-zoom-src="assets/img/astro-moon.png" data-zoom-alt="אסטרונאוט על הירח">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+          <img class="s7-astro-img" src="assets/img/astro-moon.png" alt="אסטרונאוט על הירח">
+        </div>
+        <div class="s7-info-bubble" id="s7-moon-bubble" dir="rtl">
+          <strong>מסה:</strong> 75 ק"ג<br>
+          <strong>משקל:</strong> מסה כפול עוצמת כוח הכבידה בירח (קטנה מכדור הארץ).
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="s7-divider"></div>
+
+      <!-- Right half: Earth astronaut with bubble already visible -->
+      <div class="s7-right-panel s7-anim" id="s7-earth-panel">
+        <p class="s7-panel-label" dir="rtl">האסטרונאוט מתכונן לטיסה לירח</p>
+        <div class="s7-astro-wrap s7-earth-static">
+          <button class="img-zoom-btn" type="button" aria-label="הגדלת התמונה"
+                  data-zoom-src="assets/img/astro-earth.png" data-zoom-alt="אסטרונאוט על כדור הארץ">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+          <img class="s7-astro-img" src="assets/img/astro-earth.png" alt="אסטרונאוט על כדור הארץ">
+        </div>
+        <div class="s7-info-bubble s7-info-bubble--visible" dir="rtl">
+          <strong>מסה:</strong> 75 ק"ג<br>
+          <strong>משקל:</strong> מסה כפול עוצמת כוח הכבידה בכדור הארץ.
+        </div>
+      </div>
+
+    </div><!-- /.s8-layout -->
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s7-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_MOON + 1)">המשך</button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_HOTSPOT)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 8 ─────────────────────────────────────────────── -->
+
+  <!-- ── SCREEN 9: hookOpenQuestion — האסטרונאוט ─────────────────── -->
+  <section class="screen" data-screen="8" id="s9">
+
+    <!-- Left panel: two astronauts stacked -->
+    <!-- Staged entrance: images (+ their chips) first, then the central question,
+         then the interaction fields — see enterScreen8() -->
+    <div class="s8-media-panel">
+      <div class="s8-astro-stack">
+        <!-- Earth astronaut -->
+        <div class="s8-astro-row s8-anim" id="s8-row-earth">
+          <div class="s8-astro-thumb-wrap">
+            <img class="s8-astro-thumb" src="assets/img/astro-earth.png" alt="אסטרונאוט על כדור הארץ">
+          </div>
+          <div class="s8-info-chip" dir="rtl">
+            <strong>מסה:</strong> 75 ק"ג<br>
+            <strong>משקל:</strong> מסה כפול עוצמת כוח הכבידה בכדור הארץ.
+          </div>
+        </div>
+        <!-- Moon astronaut -->
+        <div class="s8-astro-row s8-anim" id="s8-row-moon">
+          <div class="s8-astro-thumb-wrap">
+            <img class="s8-astro-thumb" src="assets/img/astro-moon.png" alt="אסטרונאוט על הירח">
+          </div>
+          <div class="s8-info-chip" dir="rtl">
+            <strong>מסה:</strong> 75 ק"ג<br>
+            <strong>משקל:</strong> מסה כפול עוצמת כוח הכבידה בירח (קטנה מכדור הארץ).
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right panel: question + inputs -->
+    <div class="s8-answer-panel" dir="rtl">
+      <p class="s8-title s8-anim" id="s8-title">האם קיים הבדל במסה ובמשקל של האסטרונאוט<br>על כדור הארץ, לעומת על הירח?</p>
+
+      <div class="s8-fields s8-anim" id="s8-fields">
+        <div class="s8-field-row">
+          <label class="s8-field-label">הבדל במסה:</label>
+          <div class="s8-field-wrap">
+            <textarea id="s8-masa-input" class="s8-textarea" oninput="hoqInput()" rows="2" placeholder="כתבו כאן..."></textarea>
+            <div class="s8-answer-bubble" id="s8-masa-bubble" dir="rtl">אין הבדל בין כדור הארץ לירח.</div>
+          </div>
+        </div>
+        <div class="s8-field-row">
+          <label class="s8-field-label">הבדל במשקל:</label>
+          <div class="s8-field-wrap">
+            <textarea id="s8-mishkal-input" class="s8-textarea" oninput="hoqInput()" rows="2" placeholder="כתבו כאן..."></textarea>
+            <div class="s8-answer-bubble" id="s8-mishkal-bubble" dir="rtl">יש הבדל בין כדור הארץ לירח.</div>
+          </div>
+        </div>
+      </div>
+
+      <button id="s8-correct-btn" class="s8-correct-btn s8-anim" disabled onclick="hoqSubmit()">צדקתי?</button>
+    </div>
+
+    <!-- Navigation bar -->
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s8-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_HOQ + 1)">המשך</button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_MOON)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 9 ─────────────────────────────────────────────── -->
+
+  <!-- ── SCREEN 10: Knowledge Summary — סיכום ידע ──────────────────── -->
+  <!-- Card style from Figma template 196:3300 HintCard:
+       bg #019de5, border-radius 48px, padding 40px,
+       title: Bold 32px white, body: Regular 22px white -->
+  <section class="screen" data-screen="9" id="s10">
+
+    <div class="s9-wrap">
+
+      <img src="assets/img/lamp.png" alt="" class="s9-anim" id="s9-lamp">
+
+      <h1 class="s9-title s9-anim" id="s9-title">חשוב לזכור - ההבדל העיקרי בין מסה למשקל:</h1>
+
+      <div class="s9-cards">
+
+        <!-- ימין: מסה -->
+        <div class="s9-card s9-anim" id="s9-card-masa">
+          <h2 class="s9-card-title">מסה</h2>
+          <div class="s9-card-body">
+            <p>מסה של גוף <strong>לא תשתנה</strong>, גם אם נעביר את הגוף למקום בעל כוח כבידה אחר.</p>
+            <p>מדוע? כי כמות החומר ממנה מורכב לא "נעלמת" ולא "מתווספת".</p>
+          </div>
+        </div>
+
+        <!-- שמאל: משקל -->
+        <div class="s9-card s9-anim" id="s9-card-mishkal">
+          <h2 class="s9-card-title">משקל</h2>
+          <div class="s9-card-body">
+            <p>משקל <strong>כן משתנה</strong> לפי כוח הכבידה במקום בו הגוף נמצא.</p>
+            <p>במקום בו כוח הכבידה חזק יותר, המשקל של אותו גוף יהיה גדול יותר, ולהפך.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s9-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_CAROUSEL)">המשך</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 10 ───────────────────────────────────────────────── -->
+
+  <!-- ── SCREEN 10: Carousel — 2 Types of Scales ────────────────── -->
+  <section class="screen" data-screen="10" id="s10-carousel">
+
+    <div class="s10c-layout">
+
+      <h2 class="s10c-title s10c-anim" id="s10c-title" dir="rtl">2 סוגי מאזניים – איך כוח הכבידה משפיע עליהם?</h2>
+
+      <div class="s10c-card-wrap s10c-anim" id="s10c-card-wrap">
+
+        <!-- DOM order intentionally: right-button first, left-button last.
+             Container is direction:rtl, so the first flex child renders at
+             the physical RIGHT edge and the last renders at the physical
+             LEFT edge — this makes the "next" arrow (id=s10-btn-left) sit
+             physically left and the "previous" arrow (id=s10-btn-right)
+             sit physically right, matching script slide 24's instruction
+             ("left arrow → advance to item 2, right arrow → back to item 1"). -->
+        <button class="s10c-arrow s10c-arrow-right" id="s10-btn-right" onclick="carouselRight()" disabled aria-label="הקודם">&#8250;</button>
+
+        <!-- Card -->
+        <div class="s10c-card">
+          <img class="s10c-card-img" id="s10-card-img" src="assets/img/cup_scales.png" alt="">
+          <div class="s10c-card-body" dir="rtl">
+            <h3 class="s10c-card-title" id="s10-card-title">מאזני כפות</h3>
+            <p  class="s10c-card-text"  id="s10-card-text"></p>
+          </div>
+        </div>
+
+        <button class="s10c-arrow s10c-arrow-left" id="s10-btn-left" onclick="carouselLeft()" aria-label="הבא">&#8249;</button>
+
+      </div>
+
+      <!-- Dots -->
+      <div class="s10c-dots s10c-anim" id="s10c-dots">
+        <span class="s10c-dot active"></span>
+        <span class="s10c-dot"></span>
+      </div>
+
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s10-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_DDQ)">המשך</button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_SUMMARY)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 10 carousel ────────────────────────────────────── -->
+
+  <!-- ── SCREEN 11: DragAndDrop Table — Summary ──────────────────── -->
+  <!-- Figma: 507-8172 (table) + 1444-37398 (drag states)
+       3 cols × 4 rows, header #d4f3ff, border #d4d4d4              -->
+  <section class="screen" data-screen="11" id="s11">
+
+    <div class="s10-content">
+
+      <!-- Text: title + subtitle -->
+      <div class="s10-text s10-anim" id="s10-text">
+        <h1 class="s10-title">אז מה היה לנו?</h1>
+        <p class="s10-subtitle">מיינו את המשפטים למקום המתאים, ותקבלו טבלה שמסכמת את ההבדלים העיקריים בין מסה למשקל.</p>
+      </div>
+
+      <!-- Table -->
+      <div class="s10-table s10-anim" id="s10-table">
+
+        <!-- Header -->
+        <div class="s10-row">
+          <div class="s10-cell s10-col-label s10-header"></div>
+          <div class="s10-cell s10-col-data  s10-header">מסה</div>
+          <div class="s10-cell s10-col-data  s10-header s10-col-last">משקל</div>
+        </div>
+
+        <!-- Row 0: הגדרה -->
+        <div class="s10-row s10-row-odd">
+          <div class="s10-cell s10-col-label">הגדרה</div>
+          <div class="s10-cell s10-col-data s10-drop-cell" id="ddq12-r0-c0" ondragover="ddq12DragOver(event)" ondrop="ddq12Drop(event,'r0-c0')"><div class="s10-drop-zone"></div></div>
+          <div class="s10-cell s10-col-data s10-drop-cell s10-col-last" id="ddq12-r0-c1" ondragover="ddq12DragOver(event)" ondrop="ddq12Drop(event,'r0-c1')"><div class="s10-drop-zone"></div></div>
+        </div>
+
+        <!-- Row 1: תלוי בכוח הכבידה? -->
+        <div class="s10-row s10-row-even">
+          <div class="s10-cell s10-col-label">תלוי בכוח הכבידה?</div>
+          <div class="s10-cell s10-col-data s10-drop-cell" id="ddq12-r1-c0" ondragover="ddq12DragOver(event)" ondrop="ddq12Drop(event,'r1-c0')"><div class="s10-drop-zone"></div></div>
+          <div class="s10-cell s10-col-data s10-drop-cell s10-col-last" id="ddq12-r1-c1" ondragover="ddq12DragOver(event)" ondrop="ddq12Drop(event,'r1-c1')"><div class="s10-drop-zone"></div></div>
+        </div>
+
+        <!-- Row 2: יחידות מידה -->
+        <div class="s10-row s10-row-odd">
+          <div class="s10-cell s10-col-label">יחידות מידה</div>
+          <div class="s10-cell s10-col-data s10-drop-cell" id="ddq12-r2-c0" ondragover="ddq12DragOver(event)" ondrop="ddq12Drop(event,'r2-c0')"><div class="s10-drop-zone"></div></div>
+          <div class="s10-cell s10-col-data s10-drop-cell s10-col-last" id="ddq12-r2-c1" ondragover="ddq12DragOver(event)" ondrop="ddq12Drop(event,'r2-c1')"><div class="s10-drop-zone"></div></div>
+        </div>
+
+      </div><!-- /.s12-table -->
+
+      <!-- Item bank -->
+      <div class="s10-bank-area s10-anim" id="s10-bank-area" ondragover="ddq12DragOver(event)" ondrop="ddq12DropToBank(event)">
+        <div class="s10-bank" id="s10-bank">
+          <!-- Filled by ddq12RenderBank() -->
+        </div>
+      </div>
+
+    </div><!-- /.s12-content -->
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="ddq12-check-btn"    class="btn-continue" disabled            onclick="ddq12Check()">צדקתי?</button>
+          <button id="ddq12-solution-btn" class="btn-continue" style="display:none" onclick="ddq12ShowSolution()">למיון הנכון</button>
+          <button id="ddq12-continue"     class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_DDQ + 1)">המשך</button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_CAROUSEL)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 12 ──────────────────────────────────────────────── -->
+
+  <!-- ── SCREEN 13: TransitionScreen — מה נשאר לנו בראש? ──────── -->
+  <section class="screen" data-screen="12" id="s12">
+
+    <div class="s0-content">
+
+      <div class="s0-text">
+        <div class="s0-slot1"></div>
+        <h1 class="s0-title s11-anim" id="s11-title">מה נשאר לנו בראש?</h1>
+        <p class="s0-subtitle s11-anim" id="s11-subtitle">שתי שאלות חימום קלילות לפני שנתקדם</p>
+      </div>
+
+      <div class="s0-char-wrap s11-anim" id="s11-char">
+        <video src="assets/video/moving.mp4" autoplay loop muted playsinline class="s11-char-gif" aria-hidden="true"></video>
+      </div>
+
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s11-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_WARMUP + 1)">קחו אותי לשאלות</button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_DDQ)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 13 ──────────────────────────────────────────────── -->
+
+  <!-- ── SCREEN 14: DropdownQuestion — חימום שאלה 1 ─────────────── -->
+  <section class="screen" data-screen="13" id="s13">
+
+    <!-- Progress bar: 1 of 2 warmup questions -->
+    <div class="s12-progress" aria-label="התקדמות שאלות">
+      <div class="s12-prog-item">
+        <div class="s12-prog-dot is-current"></div>
+        <span class="s12-prog-label">שאלה 1</span>
+      </div>
+      <div class="s12-prog-line"></div>
+      <div class="s12-prog-item">
+        <div class="s12-prog-dot"></div>
+        <span class="s12-prog-label">שאלה 2</span>
+      </div>
+    </div>
+
+    <!-- Instruction text -->
+    <div class="s12-content">
+      <div class="s12-instruction">
+        <p class="s12-instruction-bold s12-anim" id="s12-instruction-bold">בחרו עבור כל הגדרה את המושג המתאים לה.</p>
+        <p class="s12-instruction-normal s12-anim" id="s12-instruction-normal">התרכזו, יש רק ניסיון אחד.</p>
+      </div>
+
+      <!-- Dropdown rows: [custom-dd] : [sentence text] (RTL — dropdown on right) -->
+      <div class="s12-rows" id="s12-rows">
+        <div class="s12-row s12-anim">
+          <div class="s12-dd" id="s12-dd-0">
+            <div class="s12-dd-header" onclick="ddrop14Toggle(0)">
+              <span class="s12-dd-value" id="s12-ddv-0"></span>
+              <svg class="s12-dd-chevron" width="14" height="9" viewBox="0 0 14 9" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M13 1L7 7 1 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="s12-dd-list" id="s12-ddl-0">
+              <div class="s12-dd-option" onclick="ddrop14Select(event,0,'מסה')">מסה</div>
+              <div class="s12-dd-option" onclick="ddrop14Select(event,0,'משקל')">משקל</div>
+            </div>
+          </div>
+          <span class="s12-colon">:</span>
+          <p class="s12-row-text">הכוח שהכבידה מפעילה על גוף, משתנה כתלות בכוח הכבידה.</p>
+        </div>
+        <div class="s12-row s12-anim">
+          <div class="s12-dd" id="s12-dd-1">
+            <div class="s12-dd-header" onclick="ddrop14Toggle(1)">
+              <span class="s12-dd-value" id="s12-ddv-1"></span>
+              <svg class="s12-dd-chevron" width="14" height="9" viewBox="0 0 14 9" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M13 1L7 7 1 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="s12-dd-list" id="s12-ddl-1">
+              <div class="s12-dd-option" onclick="ddrop14Select(event,1,'מסה')">מסה</div>
+              <div class="s12-dd-option" onclick="ddrop14Select(event,1,'משקל')">משקל</div>
+            </div>
+          </div>
+          <span class="s12-colon">:</span>
+          <p class="s12-row-text">כמות החומר בגוף. זהה בכל מקום, נמדד במיליגרם, גרם, קילוגרם וטון.</p>
+        </div>
+      </div>
+
+      <!-- Feedback panel (hidden until check) -->
+      <div class="s12-feedback" id="s12-feedback" style="display:none">
+        <p class="s12-fb-title" id="s12-fb-title"></p>
+        <p class="s12-fb-body"  id="s12-fb-body"></p>
+      </div>
+    </div>
+
+    <!-- Hint popup — centered, matches the SingleChoiceQuestionImage State-03 hint spec
+         (blue r48 popup, white centered text) instead of the previous small
+         bottom-left bubble. Wording unchanged. -->
+    <div class="s12-hint-overlay" id="s12-hint-overlay" style="display:none">
+      <div class="s12-hint-blur"></div>
+      <div class="s12-hint-card" dir="rtl">
+        <div class="s12-hint-card-title">
+          <span>רמז</span>
+          <svg width="40" height="35" viewBox="0 0 40 35" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M20 3C14.5 3 10 7.5 10 13c0 3.9 2.1 7.3 5.3 9.2V26c0 .6.4 1 1 1h7.4c.6 0 1-.4 1-1v-3.8c3.2-1.9 5.3-5.3 5.3-9.2C30 7.5 25.5 3 20 3z" fill="white"/>
+            <rect x="15" y="28.5" width="10" height="2.5" rx="1.25" fill="white"/>
+            <rect x="15.5" y="32.5" width="9" height="2.5" rx="1.25" fill="white"/>
+          </svg>
+        </div>
+        <p class="s12-hint-body">משקל תלוי בכוח הכבידה ונמדד בניוטון (N).<br>מסה היא כמות החומר ואינה משתנה ממקום למקום.</p>
+        <button class="s12-hint-back-btn" onclick="ddrop14Hint()">חזרה לשאלה</button>
+      </div>
+    </div>
+
+    <!-- Navigation bar -->
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s12-check-btn" class="btn-continue" disabled onclick="ddrop14Check()">צדקתי?</button>
+          <button id="s12-continue"  class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_WARMUP_Q1 + 1)">המשך</button>
+          <button id="s12-hint-btn"  class="btn-hint"     onclick="ddrop14Hint()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            אפשר רמז?
+          </button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_WARMUP)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 14 ──────────────────────────────────────────────── -->
+
+  <!-- ── Screen 15: Single Choice Question – חימום שאלה 2 ─────────────── -->
+  <section class="screen" data-screen="14" id="s14">
+
+    <!-- Progress bar: question 1 done, question 2 current -->
+    <div class="s12-progress" aria-label="התקדמות שאלות">
+      <div class="s12-prog-item is-done">
+        <div class="s12-prog-dot is-done"></div>
+        <span class="s12-prog-label">שאלה 1</span>
+      </div>
+      <div class="s12-prog-line"></div>
+      <div class="s12-prog-item is-current">
+        <div class="s12-prog-dot is-current"></div>
+        <span class="s12-prog-label">שאלה 2</span>
+      </div>
+    </div>
+
+    <!-- Left image panel: astronaut on Earth → Moon -->
+    <div class="s14-img-panel">
+      <div class="s14-img-pair" style="position:relative;">
+        <button class="img-zoom-btn" type="button" aria-label="הגדלת התמונה"
+                data-zoom-src="assets/img/astro-earth.png" data-zoom-alt="אסטרונאוט על כדור הארץ">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <div class="s14-img-item">
+          <img src="assets/img/astro-earth.png" alt="אסטרונאוט על כדור הארץ" class="s14-astro-img">
+          <span class="s14-img-label">כדור הארץ</span>
+        </div>
+        <div class="s14-img-arrow">&#8592;</div>
+        <div class="s14-img-item">
+          <img src="assets/img/astro-moon.png" alt="אסטרונאוט על הירח" class="s14-astro-img">
+          <span class="s14-img-label">הירח</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content column (positioned right, 792px wide, options 604px right-aligned) -->
+    <div class="s13-col" dir="rtl">
+      <h2 class="s13-question s13-anim" id="s13-question">מה קורה למסה של אסטרונאוט כשהוא עובר מכדור הארץ לירח?</h2>
+      <div class="s13-options" id="s13-options">
+        <div class="s13-option s13-anim" onclick="scq15Select(0)">
+          <span class="s13-radio"><span class="s13-radio-icon"></span></span>
+          <span class="s13-option-text">המסה קטנה</span>
+        </div>
+        <div class="s13-option s13-anim" onclick="scq15Select(1)">
+          <span class="s13-radio"><span class="s13-radio-icon"></span></span>
+          <span class="s13-option-text">המסה גדלה</span>
+        </div>
+        <div class="s13-option s13-anim" onclick="scq15Select(2)">
+          <span class="s13-radio"><span class="s13-radio-icon"></span></span>
+          <span class="s13-option-text">המסה נשארת זהה</span>
+        </div>
+        <div class="s13-option s13-anim" onclick="scq15Select(3)">
+          <span class="s13-radio"><span class="s13-radio-icon"></span></span>
+          <span class="s13-option-text">המסה מתאפסת</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feedback popup (above nav bar, bottom-left) -->
+    <div class="s13-feedback" id="s13-feedback" style="display:none" dir="rtl">
+      <div class="s13-fb-head">
+        <p class="s13-fb-title" id="s13-fb-title"></p>
+        <button class="s13-fb-close" onclick="scq15CloseFeedback()" aria-label="סגור">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M1 1L13 13M13 1L1 13" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <p class="s13-fb-body" id="s13-fb-body"></p>
+    </div>
+
+    <!-- Hint overlay (full-screen blur + centered card) -->
+    <div class="s13-hint-overlay" id="s13-hint-overlay" style="display:none">
+      <div class="s13-hint-blur"></div>
+      <div class="s13-hint-card" dir="rtl">
+        <div class="s13-hint-card-title">
+          <span>רמז</span>
+          <svg width="40" height="35" viewBox="0 0 40 35" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M20 3C14.5 3 10 7.5 10 13c0 3.9 2.1 7.3 5.3 9.2V26c0 .6.4 1 1 1h7.4c.6 0 1-.4 1-1v-3.8c3.2-1.9 5.3-5.3 5.3-9.2C30 7.5 25.5 3 20 3z" fill="white"/>
+            <rect x="15" y="28.5" width="10" height="2.5" rx="1.25" fill="white"/>
+            <rect x="15.5" y="32.5" width="9" height="2.5" rx="1.25" fill="white"/>
+          </svg>
+        </div>
+        <p class="s13-hint-body">מסה היא כמות החומר שממנו הגוף עשוי.<br>האם כמות החומר משתנה כשעוברים לגרם שמיימי&nbsp;אחר?</p>
+        <button class="s13-hint-back-btn" onclick="scq15CloseHint()">חזרה לשאלה</button>
+      </div>
+    </div>
+
+    <!-- Navigation bar -->
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s13-check-btn"    class="btn-continue" disabled onclick="scq15Check()">צדקתי?</button>
+          <button id="s13-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_WARMUP_Q2 + 1)">המשך</button>
+          <button id="s13-hint-btn"     class="btn-hint"     onclick="scq15OpenHint()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            אפשר רמז?
+          </button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_WARMUP_Q1)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 15 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 16: TransitionScreen — הזנקה לתרגול ─────────────── -->
+  <section class="screen" data-screen="15" id="s15">
+
+    <div class="s0-content">
+
+      <div class="s0-text">
+        <div class="s0-slot1"></div>
+        <p class="s14-suptitle s14-anim" id="s14-suptitle">נעבור לתרגול הראשון ונענה על</p>
+        <h1 class="s14-bigtitle s14-anim" id="s14-bigtitle">6 שאלות</h1>
+        <p class="s14-subtitle s14-anim" id="s14-subtitle">צריך לענות נכון על 4 שאלות (80%) לפחות.</p>
+      </div>
+
+      <!-- Character area -->
+      <div class="s14-char-area">
+        <video src="assets/video/running.mp4" autoplay loop muted playsinline class="s14-char-gif s14-anim" id="s14-char" aria-hidden="true"></video>
+      </div>
+
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s14-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_PRACTICE + 1)">אפשר להתחיל!</button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_WARMUP_Q2)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 16 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 17: Practice Q1 — ליאורה בחלל ────────────────────────── -->
+  <section class="screen" data-screen="16" id="s17">
+
+    <!-- Progress bar: question 1 is current -->
+    <div class="s15-progress">
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">שאלה 1</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 2</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 3</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 4</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 5</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 6</span>
+      </div>
+    </div>
+
+    <!-- Content column -->
+    <div class="s11-col" dir="rtl">
+      <h2 class="s11-question s11-anim" id="s16-question"><span class="s11-context">ליאורה האסטרונאוטית מבלה בריחוף באזור רחוק מאוד בחלל, שבו כוח הכבידה קטן מאוד.</span><br>איזה מהמשפטים מתאר בצורה המדויקת ביותר את מה שקורה לליאורה?</h2>
+      <div class="s11-options" id="s16-options">
+        <div class="s11-option s11-anim" onclick="scq18Select(0)">
+          <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+          <span class="s11-option-text">המסה של ליאורה נשארת קבועה, אך המשקל שלה קטן מאוד.</span>
+        </div>
+        <div class="s11-option s11-anim" onclick="scq18Select(1)">
+          <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+          <span class="s11-option-text">המסה של ליאורה קטנה, משום שכמעט אין כוח כבידה.</span>
+        </div>
+        <div class="s11-option s11-anim" onclick="scq18Select(2)">
+          <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+          <span class="s11-option-text">המשקל של ליאורה נשמר, משום שהגוף עדיין עשוי מאותה כמות חומר.</span>
+        </div>
+        <div class="s11-option s11-anim" onclick="scq18Select(3)">
+          <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+          <span class="s11-option-text">גם המסה וגם המשקל של ליאורה כמעט נעלמים.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feedback popup -->
+    <div class="s11-feedback" id="s16-feedback" style="display:none" dir="rtl">
+      <div class="s11-fb-head">
+        <p class="s11-fb-title" id="s16-fb-title"></p>
+        <button class="s11-fb-close" onclick="scq18CloseFeedback()" aria-label="סגור">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M1 1L13 13M13 1L1 13" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <p class="s11-fb-body" id="s16-fb-body"></p>
+    </div>
+
+    <!-- Hint overlay -->
+    <div class="s11-hint-overlay" id="s16-hint-overlay" style="display:none">
+      <div class="s11-hint-blur"></div>
+      <div class="s11-hint-card" dir="rtl">
+        <div class="s11-hint-card-title">
+          <span>רמז</span>
+          <svg width="40" height="35" viewBox="0 0 40 35" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M20 3C14.5 3 10 7.5 10 13c0 3.9 2.1 7.3 5.3 9.2V26c0 .6.4 1 1 1h7.4c.6 0 1-.4 1-1v-3.8c3.2-1.9 5.3-5.3 5.3-9.2C30 7.5 25.5 3 20 3z" fill="white"/>
+            <rect x="15" y="28.5" width="10" height="2.5" rx="1.25" fill="white"/>
+            <rect x="15.5" y="32.5" width="9" height="2.5" rx="1.25" fill="white"/>
+          </svg>
+        </div>
+        <p class="s11-hint-body">בחלל הרחוק כוח הכבידה קטן מאוד ביחס לכדור הארץ.<br>על מה הדבר ישפיע - על המסה של ליאורה, או על המשקל שלה?</p>
+        <button class="s11-hint-back-btn" onclick="scq18CloseHint()">חזרה לשאלה</button>
+      </div>
+    </div>
+
+    <!-- Navigation bar -->
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s16-check-btn"    class="btn-continue" disabled onclick="scq18Check()">צדקתי?</button>
+          <button id="s16-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_PRACTICE_Q2)">המשך</button>
+          <button id="s16-hint-btn"     class="btn-hint"     style="display:none" onclick="scq18OpenHint()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            אפשר רמז?
+          </button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_PRACTICE)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 17 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 18: Practice Q2 — שקד וים / כוכב צדק ──────────────── -->
+  <section class="screen" data-screen="17" id="s16">
+
+    <!-- Progress bar: Q1 done, Q2 current -->
+    <div class="s15-progress">
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 1</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">שאלה 2</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 3</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 4</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 5</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 6</span>
+      </div>
+    </div>
+
+    <!-- Left: image + feedback overlay -->
+    <div class="s17q-image-wrap s11-anim" id="s15-image-wrap">
+      <button class="img-zoom-btn" type="button" aria-label="הגדלת התמונה"
+              data-zoom-src="assets/img/yam_shaked.png" data-zoom-alt="ים שקד">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <img class="s17q-img" src="assets/img/yam_shaked.png" alt="ים שקד">
+      <div class="s17q-feedback" id="s15-feedback" style="display:none" dir="rtl">
+        <p class="s17q-fb-title" id="s15-fb-title"></p>
+        <p class="s17q-fb-body"  id="s15-fb-body"></p>
+      </div>
+    </div>
+
+    <!-- Right: content column -->
+    <div class="s17q-content" dir="rtl">
+      <p class="s17q-story-first s11-anim" id="s15-story-first">שקד וים קראו שכוח הכבידה על כוכב צדק חזק פי כ־2.5 מזה שעל כדור הארץ.</p>
+      <p class="s17q-story s11-anim" id="s15-story">
+        שקד: ״אם אגיע לכוכב צדק, מסתי תהיה פי 2.5״.<br>
+        ים: ״לא נכון. המסה שלך תישאר כמו שהיא. מה שיגדל פי 2.5 הוא המשקל שלך.״
+      </p>
+      <h2 class="s17q-question s11-anim" id="s15-question">מי צודק מבחינה מדעית?</h2>
+      <div class="s17q-options" id="s15-options">
+        <div class="s11-option s11-anim" onclick="scq17Select(0)">
+          <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+          <span class="s11-option-text">שקד</span>
+        </div>
+        <div class="s11-option s11-anim" onclick="scq17Select(1)">
+          <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+          <span class="s11-option-text">ים</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hint overlay — centered popup matching the standard hint template
+         (title row + centered body), width matched to the short text
+         instead of the previous stretched 760px row layout -->
+    <div class="s17q-hint-overlay" id="s15-hint-overlay" style="display:none">
+      <div class="s17q-hint-card" dir="rtl">
+        <div class="s17q-hint-header">
+          <span>רמז</span>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="s17q-hint-text">חשבו, מה משתנה כתלות בכוח הכבידה – המסה או המשקל?</p>
+        <button class="s17q-hint-back-btn" onclick="scq17CloseHint()">חזרה לשאלה</button>
+      </div>
+    </div>
+
+    <!-- Navigation bar -->
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s15-check-btn"    class="btn-continue" disabled onclick="scq17Check()">צדקתי?</button>
+          <button id="s15-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_PRACTICE_Q2 + 1)">המשך</button>
+          <button id="s15-hint-btn"     class="btn-hint"     onclick="scq17OpenHint()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            אפשר רמז?
+          </button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_PRACTICE_Q1)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 18 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 19: Practice Q3 — שקד וים / כוכב צדק ─────────────────── -->
+  <section class="screen" data-screen="18" id="s18">
+
+    <!-- Progress bar: Q1 done, Q2 done, Q3 current -->
+    <div class="s15-progress">
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 1</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 2</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">שאלה 3</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 4</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 5</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 6</span>
+      </div>
+    </div>
+
+    <!-- Left: image + feedback overlays -->
+    <div class="s18q-image-wrap s11-anim" id="s18-image-wrap">
+      <button class="img-zoom-btn" id="s18-zoom-btn" type="button" aria-label="הגדלת התמונה"
+              data-zoom-src="assets/img/rice_on_scales.png" data-zoom-alt="אורז על מאזניים">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <img class="s18q-img" src="assets/img/rice_on_scales.png" alt="אורז על מאזניים">
+
+      <!-- First-wrong overlay (dismissible, semi-transparent) -->
+      <div class="s18q-feedback-first" id="s18-feedback-first" style="display:none" dir="rtl">
+        <button class="s18q-fb-dismiss" onclick="scq19DismissFirst()" aria-label="סגור וננסה שוב">
+          <svg width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M1 1.5L8 8.5L15 1.5" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <p class="s18q-fb-first-title">התשובה לא נכונה.</p>
+        <p class="s18q-fb-first-body">שננסה שוב?</p>
+      </div>
+
+      <!-- Full feedback overlay (correct / final wrong) -->
+      <div class="s18q-feedback" id="s18-feedback" style="display:none" dir="rtl">
+        <button class="s18q-fb-close" onclick="scq19CloseFeedback()" aria-label="סגור">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M1 1L13 13M13 1L1 13" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <p class="s18q-fb-title" id="s18-fb-title"></p>
+        <p class="s18q-fb-body"  id="s18-fb-body"></p>
+      </div>
+    </div>
+
+    <!-- Right: story + question + 4 options -->
+    <div class="s18q-content" dir="rtl">
+      <p class="s18q-story-first s11-anim" id="s18-story-first">מדדתם את מסתו של קילו אורז בעזרת מאזני כפות ומשקולת של 1 ק"ג.</p>
+      <p class="s18q-story s11-anim" id="s18-story">
+        המאזניים התאזנו.<br>
+        כעת לקחתם את אותם המאזניים, את האורז ואת המשקולת אל הירח.
+      </p>
+      <h2 class="s18q-question s11-anim" id="s18-question">מה יקרה על הירח?</h2>
+      <div class="s18q-options" id="s18-options">
+        <div class="s11-option s11-anim" onclick="scq19Select(0)">
+          <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+          <span class="s11-option-text">המאזניים לא יישארו מאוזנים כי המשקל קטן.</span>
+        </div>
+        <div class="s11-option s11-anim" onclick="scq19Select(1)">
+          <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+          <span class="s11-option-text">המאזניים יישארו מאוזנים.</span>
+        </div>
+        <div class="s11-option s11-anim" onclick="scq19Select(2)">
+          <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+          <span class="s11-option-text">האורז יהיה כבד יותר מהמשקולת.</span>
+        </div>
+        <div class="s11-option s11-anim" onclick="scq19Select(3)">
+          <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+          <span class="s11-option-text">אי אפשר לדעת.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hint overlay — centered popup matching the standard hint template
+         (title row + centered body), width matched to text instead of the
+         previous stretched 760px row layout -->
+    <div class="s18q-hint-overlay" id="s18-hint-overlay" style="display:none">
+      <div class="s18q-hint-card" dir="rtl">
+        <div class="s18q-hint-header">
+          <span>רמז</span>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="s18q-hint-text">חשבו: על הירח הכבידה חלשה יותר, אבל זה משפיע <strong>באותה מידה</strong> על שני האובייקטים הנמדדים במאזני הכפות (אורז ומשקולת). אז מהי התוצאה שנראה במאזנים?</p>
+        <button class="s18q-hint-back-btn" onclick="scq19CloseHint()">חזרה לשאלה</button>
+      </div>
+    </div>
+
+    <!-- Navigation bar -->
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s18-check-btn"    class="btn-continue" disabled onclick="scq19Check()">צדקתי?</button>
+          <button id="s18-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_PRACTICE_Q3 + 1)">המשך</button>
+          <button id="s18-hint-btn"     class="btn-hint"     style="display:none" onclick="scq19OpenHint()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            אפשר רמז?
+          </button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_PRACTICE_Q2)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 18 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 20: Practice Q4 — מאזני כפות בירח ────────────────────── -->
+  <section class="screen" data-screen="19" id="s19">
+
+    <!-- Progress bar: Q1-3 done, Q4 current, Q5-6 empty -->
+    <div class="s15-progress">
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 1</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 2</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 3</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">שאלה 4</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 5</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 6</span>
+      </div>
+    </div>
+
+    <!-- First-wrong dismissible feedback -->
+    <div class="s19q-fb-first" id="s19q-fb-first" style="display:none" dir="rtl">
+      <p class="s19q-fb-first-title"><strong>התשובה לא נכונה.</strong></p>
+      <p class="s19q-fb-first-sub">שננסה שוב?</p>
+    </div>
+
+    <!-- Final feedback (correct / final-wrong) -->
+    <div class="s19q-fb" id="s19q-fb" style="display:none" dir="rtl">
+      <p class="s19q-fb-title" id="s19q-fb-title"></p>
+      <div class="s19q-fb-body" id="s19q-fb-body"></div>
+    </div>
+
+    <!-- Content column: question + 3-col grid -->
+    <div class="s17-col" dir="rtl">
+      <p class="s17-question s11-anim" id="s19q-question">בחרו עבור כל מילה אם היא מייצגת שפה מדעית, שפה יומיומית, או גם וגם.</p>
+
+      <div class="s17-rows s19q-grid" id="s19q-rows">
+
+        <!-- כבד -->
+        <div class="s17-cell s11-anim">
+          <span class="s17-cell-label">כבד:</span>
+          <div class="s17-dd" id="dd19-kavad">
+            <button class="s17-dd-trigger" onclick="dq19Toggle('kavad')">
+              <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="s17-dd-status"></span>
+              <span class="s17-dd-val" id="dd19-kavad-val"></span>
+            </button>
+            <div class="s17-dd-panel" id="dd19-kavad-panel" style="display:none">
+              <button class="s17-dd-panel-head" onclick="dq19Toggle('kavad')">
+                <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="s17-dd-val"></span>
+              </button>
+              <button class="s17-dd-opt" onclick="dq19Pick('kavad','יומיומית')">שפה יומיומית</button>
+              <button class="s17-dd-opt" onclick="dq19Pick('kavad','מדעית')">שפה מדעית</button>
+              <button class="s17-dd-opt" onclick="dq19Pick('kavad','גם וגם')">גם וגם</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- שוקל -->
+        <div class="s17-cell s11-anim">
+          <span class="s17-cell-label">שוקל:</span>
+          <div class="s17-dd" id="dd19-shokeil">
+            <button class="s17-dd-trigger" onclick="dq19Toggle('shokeil')">
+              <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="s17-dd-status"></span>
+              <span class="s17-dd-val" id="dd19-shokeil-val"></span>
+            </button>
+            <div class="s17-dd-panel" id="dd19-shokeil-panel" style="display:none">
+              <button class="s17-dd-panel-head" onclick="dq19Toggle('shokeil')">
+                <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="s17-dd-val"></span>
+              </button>
+              <button class="s17-dd-opt" onclick="dq19Pick('shokeil','יומיומית')">שפה יומיומית</button>
+              <button class="s17-dd-opt" onclick="dq19Pick('shokeil','מדעית')">שפה מדעית</button>
+              <button class="s17-dd-opt" onclick="dq19Pick('shokeil','גם וגם')">גם וגם</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- קל -->
+        <div class="s17-cell s11-anim">
+          <span class="s17-cell-label">קל:</span>
+          <div class="s17-dd" id="dd19-kal">
+            <button class="s17-dd-trigger" onclick="dq19Toggle('kal')">
+              <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="s17-dd-status"></span>
+              <span class="s17-dd-val" id="dd19-kal-val"></span>
+            </button>
+            <div class="s17-dd-panel" id="dd19-kal-panel" style="display:none">
+              <button class="s17-dd-panel-head" onclick="dq19Toggle('kal')">
+                <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="s17-dd-val"></span>
+              </button>
+              <button class="s17-dd-opt" onclick="dq19Pick('kal','יומיומית')">שפה יומיומית</button>
+              <button class="s17-dd-opt" onclick="dq19Pick('kal','מדעית')">שפה מדעית</button>
+              <button class="s17-dd-opt" onclick="dq19Pick('kal','גם וגם')">גם וגם</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ניוטון -->
+        <div class="s17-cell s11-anim">
+          <span class="s17-cell-label">ניוטון:</span>
+          <div class="s17-dd" id="dd19-newton">
+            <button class="s17-dd-trigger" onclick="dq19Toggle('newton')">
+              <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="s17-dd-status"></span>
+              <span class="s17-dd-val" id="dd19-newton-val"></span>
+            </button>
+            <div class="s17-dd-panel" id="dd19-newton-panel" style="display:none">
+              <button class="s17-dd-panel-head" onclick="dq19Toggle('newton')">
+                <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="s17-dd-val"></span>
+              </button>
+              <button class="s17-dd-opt" onclick="dq19Pick('newton','יומיומית')">שפה יומיומית</button>
+              <button class="s17-dd-opt" onclick="dq19Pick('newton','מדעית')">שפה מדעית</button>
+              <button class="s17-dd-opt" onclick="dq19Pick('newton','גם וגם')">גם וגם</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- כוח כבידה -->
+        <div class="s17-cell s11-anim">
+          <span class="s17-cell-label">כוח כבידה:</span>
+          <div class="s17-dd" id="dd19-kochkv">
+            <button class="s17-dd-trigger" onclick="dq19Toggle('kochkv')">
+              <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="s17-dd-status"></span>
+              <span class="s17-dd-val" id="dd19-kochkv-val"></span>
+            </button>
+            <div class="s17-dd-panel" id="dd19-kochkv-panel" style="display:none">
+              <button class="s17-dd-panel-head" onclick="dq19Toggle('kochkv')">
+                <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="s17-dd-val"></span>
+              </button>
+              <button class="s17-dd-opt" onclick="dq19Pick('kochkv','יומיומית')">שפה יומיומית</button>
+              <button class="s17-dd-opt" onclick="dq19Pick('kochkv','מדעית')">שפה מדעית</button>
+              <button class="s17-dd-opt" onclick="dq19Pick('kochkv','גם וגם')">גם וגם</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- מסה -->
+        <div class="s17-cell s11-anim">
+          <span class="s17-cell-label">מסה:</span>
+          <div class="s17-dd" id="dd19-masa">
+            <button class="s17-dd-trigger" onclick="dq19Toggle('masa')">
+              <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="s17-dd-status"></span>
+              <span class="s17-dd-val" id="dd19-masa-val"></span>
+            </button>
+            <div class="s17-dd-panel" id="dd19-masa-panel" style="display:none">
+              <button class="s17-dd-panel-head" onclick="dq19Toggle('masa')">
+                <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="s17-dd-val"></span>
+              </button>
+              <button class="s17-dd-opt" onclick="dq19Pick('masa','יומיומית')">שפה יומיומית</button>
+              <button class="s17-dd-opt" onclick="dq19Pick('masa','מדעית')">שפה מדעית</button>
+              <button class="s17-dd-opt" onclick="dq19Pick('masa','גם וגם')">גם וגם</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- משקל -->
+        <div class="s17-cell s11-anim">
+          <span class="s17-cell-label">משקל:</span>
+          <div class="s17-dd" id="dd19-mishkal">
+            <button class="s17-dd-trigger" onclick="dq19Toggle('mishkal')">
+              <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="s17-dd-status"></span>
+              <span class="s17-dd-val" id="dd19-mishkal-val"></span>
+            </button>
+            <div class="s17-dd-panel" id="dd19-mishkal-panel" style="display:none">
+              <button class="s17-dd-panel-head" onclick="dq19Toggle('mishkal')">
+                <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="s17-dd-val"></span>
+              </button>
+              <button class="s17-dd-opt" onclick="dq19Pick('mishkal','יומיומית')">שפה יומיומית</button>
+              <button class="s17-dd-opt" onclick="dq19Pick('mishkal','מדעית')">שפה מדעית</button>
+              <button class="s17-dd-opt" onclick="dq19Pick('mishkal','גם וגם')">גם וגם</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /s19q-rows -->
+    </div><!-- /s17-col -->
+
+    <!-- Hint overlay -->
+    <div class="s11-hint-overlay" id="s19q-hint-overlay" style="display:none">
+      <div class="s11-hint-blur"></div>
+      <div class="s11-hint-card" dir="rtl">
+        <p class="s11-hint-body">איזו מילה מהרשימה מוכרת משפת היומיום, אך יש לה גם הגדרה מדעית מדויקת?</p>
+        <button class="s11-hint-back-btn" onclick="dq19CloseHint()">חזרה לשאלה</button>
+      </div>
+    </div>
+
+    <!-- Navigation bar -->
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s19q-check"    class="btn-continue" disabled onclick="dq19Check()">צדקתי?</button>
+          <button id="s19q-continue" class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_PRACTICE_Q5)">המשך</button>
+          <button id="s19q-hint-btn" class="btn-hint"     style="display:none" onclick="dq19OpenHint()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            אפשר רמז?
+          </button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_PRACTICE_Q3)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 19 (Practice Q4) ──────────────────────────────────── -->
+
+  <!-- ── Screen 20: Practice Q5 — DropdownQuestion + Video ────────── -->
+  <section class="screen" data-screen="20" id="s20">
+
+    <!-- Progress bar: Q1-4 done, Q5 current, Q6 empty -->
+    <div class="s15-progress">
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 1</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 2</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 3</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 4</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">שאלה 5</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 6</span>
+      </div>
+    </div>
+
+    <!-- Two-column layout: right=questions, left=video -->
+    <div class="s20-layout">
+
+      <!-- Right: question text + dropdowns -->
+      <div class="s20-right" dir="rtl">
+        <p class="s20-intro s20-anim" id="s20-intro">בשיעור מדעים צפו התלמידות והתלמידים בסרטון של<br>ניל ארמסטרונג – האדם הראשון שצעד על הירח – מקפץ על הירח.</p>
+        <p class="s20-choose s20-anim" id="s20-choose">
+          בחרו עבור כל משפט, האם הוא
+          <span class="s20-term-wrap" id="s20-wrap-tzfiya">
+            <button class="s20-tip-btn" id="s20-btn-tzfiya" aria-label="הסבר על תצפית" tabindex="0">?</button>
+            <strong>תצפית</strong>
+          </span>
+          (מה שרואים) או
+          <span class="s20-term-wrap" id="s20-wrap-hasbar">
+            <button class="s20-tip-btn" id="s20-btn-hasbar" aria-label="הסבר על הסבר מדעי" tabindex="0">?</button>
+            <strong>הסבר מדעי</strong>
+          </span>
+          (הסבר של תופעה).
+        </p>
+
+        <div class="s20-rows" id="s20-rows">
+
+          <!-- א -->
+          <div class="s20-row s20-anim">
+            <span class="s20-row-label">א. כוח הכבידה על הירח חלש יותר:</span>
+            <div class="s17-dd" id="s20dd-alef">
+              <button class="s17-dd-trigger" onclick="dq20Toggle('alef')">
+                <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="s17-dd-status"></span>
+                <span class="s17-dd-val"></span>
+              </button>
+              <div class="s17-dd-panel" style="display:none">
+                <button class="s17-dd-panel-head" onclick="dq20Toggle('alef')">
+                  <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span class="s17-dd-val"></span>
+                </button>
+                <button class="s17-dd-opt" onclick="dq20Pick('alef','תצפית')">תצפית</button>
+                <button class="s17-dd-opt" onclick="dq20Pick('alef','הסבר מדעי')">הסבר מדעי</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ב -->
+          <div class="s20-row s20-anim">
+            <span class="s20-row-label">ב. ניל קופץ גבוה יותר על הירח, מאשר על כדור הארץ:</span>
+            <div class="s17-dd" id="s20dd-bet">
+              <button class="s17-dd-trigger" onclick="dq20Toggle('bet')">
+                <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="s17-dd-status"></span>
+                <span class="s17-dd-val"></span>
+              </button>
+              <div class="s17-dd-panel" style="display:none">
+                <button class="s17-dd-panel-head" onclick="dq20Toggle('bet')">
+                  <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span class="s17-dd-val"></span>
+                </button>
+                <button class="s17-dd-opt" onclick="dq20Pick('bet','תצפית')">תצפית</button>
+                <button class="s17-dd-opt" onclick="dq20Pick('bet','הסבר מדעי')">הסבר מדעי</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ג -->
+          <div class="s20-row s20-anim">
+            <span class="s20-row-label">ג. כוח הכבידה משפיע על המשקל:</span>
+            <div class="s17-dd" id="s20dd-gimel">
+              <button class="s17-dd-trigger" onclick="dq20Toggle('gimel')">
+                <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="s17-dd-status"></span>
+                <span class="s17-dd-val"></span>
+              </button>
+              <div class="s17-dd-panel" style="display:none">
+                <button class="s17-dd-panel-head" onclick="dq20Toggle('gimel')">
+                  <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span class="s17-dd-val"></span>
+                </button>
+                <button class="s17-dd-opt" onclick="dq20Pick('gimel','תצפית')">תצפית</button>
+                <button class="s17-dd-opt" onclick="dq20Pick('gimel','הסבר מדעי')">הסבר מדעי</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ד -->
+          <div class="s20-row s20-anim">
+            <span class="s20-row-label">ד. הירח קטן יותר, ולכן כוח הכבידה שלו חלש יותר:</span>
+            <div class="s17-dd" id="s20dd-dalet">
+              <button class="s17-dd-trigger" onclick="dq20Toggle('dalet')">
+                <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="s17-dd-status"></span>
+                <span class="s17-dd-val"></span>
+              </button>
+              <div class="s17-dd-panel" style="display:none">
+                <button class="s17-dd-panel-head" onclick="dq20Toggle('dalet')">
+                  <svg class="s17-dd-chev" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L8 6.5L15 1.5" stroke="#AEAEAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span class="s17-dd-val"></span>
+                </button>
+                <button class="s17-dd-opt" onclick="dq20Pick('dalet','תצפית')">תצפית</button>
+                <button class="s17-dd-opt" onclick="dq20Pick('dalet','הסבר מדעי')">הסבר מדעי</button>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /s20-rows -->
+      </div><!-- /s20-right -->
+
+      <!-- Left: video (replaced by feedback after check) -->
+      <div class="s20-left s20-anim" id="s20-left">
+        <div class="s20-video-wrap" id="s20-video-wrap">
+          <iframe id="s20-yt-iframe"
+            src="https://www.youtube.com/embed/cwZb2mqId0A?start=107&enablejsapi=1&mute=1&autoplay=1&controls=1&modestbranding=1&rel=0&playsinline=1"
+            frameborder="0"
+            allow="autoplay; encrypted-media"
+            allowfullscreen></iframe>
+        </div>
+        <p class="s20-video-caption">1969: ניל ארמסטרונג נוחת על הירח</p>
+        <!-- Feedback panel -->
+        <div class="s20-fb-panel" id="s20q-feedback" style="display:none" dir="rtl">
+          <p class="s20-fb-title" id="s20q-fb-title"></p>
+          <div class="s20-fb-body" id="s20q-fb-body"></div>
+        </div>
+      </div><!-- /s20-left -->
+
+    </div><!-- /s20-layout -->
+
+    <!-- Tooltip: תצפית -->
+    <div class="s20-tooltip" id="s20-tip-tzfiya" style="display:none" dir="rtl" role="tooltip">תצפית - מה שניתן לראות בפועל, ללא פרשנות או הסבר.</div>
+    <!-- Tooltip: הסבר מדעי -->
+    <div class="s20-tooltip" id="s20-tip-hasbar" style="display:none" dir="rtl" role="tooltip">הסבר מדעי - פרשנות הנובעת מתוך תצפית או מתוך תוצאה של ניסוי.</div>
+
+    <!-- Navigation bar (no hint button) -->
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s20q-check-btn"    class="btn-continue" disabled onclick="dq20Check()">צדקתי?</button>
+          <button id="s20q-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_GALILEO_INTRO)">המשך</button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_PRACTICE_Q4)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 20 ───────────────────────────────────────────────── -->
+
+
+  <!-- ── Screen 21: Galileo Intro — short text before Practice Q6 ─────────── -->
+  <section class="screen" data-screen="21" id="s21">
+
+    <div class="s-galileo-layout">
+
+      <!-- Right: text (first in DOM = right side in RTL flex) -->
+      <div class="s-galileo-right" dir="rtl">
+        <p class="s-galileo-title s-galileo-anim" id="s21-title"><strong>שנת 1589. גלילאו גליליי, פרופסור צעיר באוניברסיטת פיזה,<br>מחליט לאתגר רעיון שנחשב אמת מוחלטת עד אז.</strong></p>
+        <p class="s-galileo-body s-galileo-anim" id="s21-body1">אריסטו טען שגוף עם מסה כבדה יפול מהר יותר מגוף עם מסה נמוכה.<br>כולם האמינו לזה, אף אחד לא טרח לבדוק.</p>
+        <p class="s-galileo-body s-galileo-anim" id="s21-body2">גלילאו החליט לבדוק אם זה נכון.<br>הוא עלה למגדל פיזה, החזיק שני כדורים -אחד מברזל ואחד מעץ -<br>ושחרר אותם יחד לקרקע.</p>
+        <p class="s-galileo-body s-galileo-anim" id="s21-result"><strong>התוצאה: שניהם נחתו בו-זמנית.</strong></p>
+      </div>
+
+      <!-- Left: video / image (second in DOM = left side in RTL flex) -->
+      <div class="s-galileo-left">
+        <div class="s-galileo-media s-galileo-anim" id="s21-media">
+          <img src="assets/img/galileo.png" class="s-galileo-img" alt="גלילאו זורק כדורים ממגדל פיזה" id="s21-img">
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Nav -->
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s21-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_MOON_INTRO)">המשך</button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_PRACTICE_Q5)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 21 ───────────────────────────────────────────────── -->
+
+
+  <!-- ── Screen 22: Moon Intro — short text + video before Practice Q6 ─────── -->
+  <section class="screen" data-screen="22" id="s22moon">
+
+    <div class="s-galileo-layout">
+
+      <!-- Right: text (first in DOM = right in RTL flex) -->
+      <div class="s-galileo-right" dir="rtl">
+        <p class="s-galileo-title s-galileo-anim" id="s22-title"><strong>האם הניסוי הזה באמת קרה?</strong></p>
+        <p class="s-galileo-body s-galileo-anim" id="s22-body1">ההיסטוריונים לא בטוחים בכך.<br>המקור היחיד הוא ביוגרפיה שכתב תלמידו של גלילאו שפורסמה כ-75 שנה<br>אחרי מות גלילאו.<br>ייתכן שמדובר בניסוי מחשבתי שהפך לאגדה.</p>
+        <p class="s-galileo-body s-galileo-anim" id="s22-body2">ב-1971 בדק האסטרונאוט דייוויד סקוט את הרעיון מחדש, על הירח.<br>הוא שחרר פטיש ונוצה בו-זמנית.</p>
+        <p class="s-galileo-body s-galileo-anim" id="s22-result"><strong>התוצאה: גם בירח, שני הגופים נגעו בקרקע יחד.</strong></p>
+      </div>
+
+      <!-- Left: YouTube video with magnify button (second in DOM = left in RTL flex) -->
+      <div class="s-galileo-left">
+        <div class="s-galileo-media s22-video-wrap s-galileo-anim" id="s22-media">
+          <iframe id="s22-iframe" class="s22-iframe"
+            src="about:blank"
+            data-src="https://www.youtube.com/embed/oYEgdZ3iEKA?start=107&end=113&autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&playsinline=1"
+            frameborder="0"
+            allow="autoplay; encrypted-media"
+            allowfullscreen></iframe>
+          <button class="s22-magnify-btn" onclick="s22OpenModal()" aria-label="הגדל וידאו">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+              <circle cx="11" cy="11" r="7" stroke="white" stroke-width="2"/>
+              <line x1="16.5" y1="16.5" x2="22" y2="22" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+              <line x1="8" y1="11" x2="14" y2="11" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              <line x1="11" y1="8" x2="11" y2="14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Nav -->
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s22moon-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_PRACTICE_Q6)">המשך</button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_GALILEO_INTRO)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 22 ──────────────────────────────────────────────────── -->
+
+  <!-- ── Modal: full-screen Moon video ──────────────────────────────────── -->
+  <div class="s22-modal-overlay" id="s22-modal" style="display:none" role="dialog" aria-modal="true" aria-label="סרטון מוגדל">
+    <button class="s22-modal-close" onclick="s22CloseModal()" aria-label="סגור">✕</button>
+    <div class="s22-modal-video">
+      <iframe id="s22-modal-iframe"
+        src="about:blank"
+        data-src="https://www.youtube.com/embed/oYEgdZ3iEKA?start=107&end=113&autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&playsinline=1"
+        frameborder="0"
+        allow="autoplay; encrypted-media"
+        allowfullscreen></iframe>
+    </div>
+  </div>
+  <!-- ── End modal ──────────────────────────────────────────────────────── -->
+
+
+  <!-- ── Screen 23: Practice Q6 — DropdownQuestion ──────────────────────── -->
+  <!-- ── Screen 23: Practice Q6 — SingleChoiceQuestionImage ────────── -->
+  <section class="screen" data-screen="23" id="s23">
+
+    <!-- Progress bar: Q1–Q5 done, Q6 current -->
+    <div class="s15-progress">
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 1</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 2</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 3</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 4</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 5</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">שאלה 6</span>
+      </div>
+    </div>
+
+    <!-- Left: media panel — image always visible; feedback overlays it -->
+    <div class="s23-img-panel">
+      <div class="s23-img-wrap s23-anim" id="s23-img-wrap">
+        <button class="img-zoom-btn" type="button" aria-label="הגדלת התמונה"
+                data-zoom-src="assets/img/galileo.png" data-zoom-alt="גלילאו זורק כדורים ממגדל פיזה">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <img src="assets/img/galileo.png" alt="גלילאו זורק כדורים ממגדל פיזה" class="s23-img" id="s23-img">
+        <!-- Feedback overlay — sits on top of the image, image stays visible behind -->
+        <div class="s23-feedback" id="s23-feedback" style="display:none" dir="rtl">
+          <div class="s23-fb-head">
+            <p class="s23-fb-title" id="s23-fb-title"></p>
+            <button class="s23-fb-close" onclick="scq23CloseFeedback()" aria-label="סגור">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M1 1L13 13M13 1L1 13" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+          <p class="s23-fb-body" id="s23-fb-body"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: question + options -->
+    <div class="s23-col" dir="rtl">
+      <h2 class="s23-question s23-anim" id="s23-question">מה ניתן להסיק מתוצאת הניסוי?</h2>
+      <div class="s23-options" id="s23-options">
+        <div class="s23-opt s23-anim" role="radio" aria-checked="false" data-id="alef" onclick="scq23Select('alef')">
+          <span class="s23-radio"><span class="s23-radio-icon"></span></span>
+          <span class="s23-opt-text">גוף עם מסה גדולה יותר מגיע לקרקע מהר יותר.</span>
+        </div>
+        <div class="s23-opt s23-anim" role="radio" aria-checked="false" data-id="bet" onclick="scq23Select('bet')">
+          <span class="s23-radio"><span class="s23-radio-icon"></span></span>
+          <span class="s23-opt-text">זמן ההגעה לקרקע אינו תלוי במסה.</span>
+        </div>
+        <div class="s23-opt s23-anim" role="radio" aria-checked="false" data-id="gimel" onclick="scq23Select('gimel')">
+          <span class="s23-radio"><span class="s23-radio-icon"></span></span>
+          <span class="s23-opt-text">מסה ומשקל הם אותו הדבר.</span>
+        </div>
+        <div class="s23-opt s23-anim" role="radio" aria-checked="false" data-id="dalet" onclick="scq23Select('dalet')">
+          <span class="s23-radio"><span class="s23-radio-icon"></span></span>
+          <span class="s23-opt-text">גוף עם מסה קטנה יותר מגיע לקרקע מהר יותר.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hint overlay -->
+    <div class="s23-hint-overlay" id="s23-hint-overlay" style="display:none">
+      <div class="s23-hint-blur"></div>
+      <div class="s23-hint-card" dir="rtl">
+        <div class="s23-hint-card-title">
+          <span>רמז</span>
+          <svg width="40" height="35" viewBox="0 0 40 35" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M20 3C14.5 3 10 7.5 10 13c0 3.9 2.1 7.3 5.3 9.2V26c0 .6.4 1 1 1h7.4c.6 0 1-.4 1-1v-3.8c3.2-1.9 5.3-5.3 5.3-9.2C30 7.5 25.5 3 20 3z" fill="white"/>
+            <rect x="15" y="28.5" width="10" height="2.5" rx="1.25" fill="white"/>
+            <rect x="15.5" y="32.5" width="9" height="2.5" rx="1.25" fill="white"/>
+          </svg>
+        </div>
+        <p class="s23-hint-body">שני הכדורים הגיעו יחד — למרות שהמסה שלהם שונה לחלוטין.<br>מה זה אומר על הקשר בין מסה לבין מהירות הנפילה?</p>
+        <button class="s23-hint-back-btn" onclick="scq23CloseHint()">חזרה לשאלה</button>
+      </div>
+    </div>
+
+    <!-- Navigation bar -->
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s23-check-btn"    class="btn-continue" disabled onclick="scq23Check()">צדקתי?</button>
+          <button id="s23-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="goTo(routeAfterStandard() ? SCREEN_STANDARD_B : SCREEN_BASIC)">המשך</button>
+          <button id="s23-hint-btn"     class="btn-hint"     onclick="scq23OpenHint()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            אפשר רמז?
+          </button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_MOON_INTRO)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 23 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 23: TransitionScreen — תרגול בסיסי ──────────────── -->
+  <section class="screen" data-screen="24" id="s24">
+
+    <div class="s0-content">
+
+      <div class="s0-text">
+        <div class="s0-slot1"></div>
+        <p class="s12-suptitle s12-anim" id="s21-suptitle">אין כמו תרגול לחיזוק הלמידה</p>
+        <h1 class="s12-bigtitle s12-anim" id="s21-bigtitle">3 שאלות</h1>
+        <p class="s12-subtitle s12-anim" id="s21-subtitle">וכבר בהתחלה יש רמז! ענו נכון על כל השאלות כדי להתקדם.</p>
+      </div>
+
+      <div class="s12-char-area">
+        <video src="assets/video/lifting.mp4" autoplay loop muted playsinline class="s12-char-gif s12-anim" id="s21-char" aria-hidden="true"></video>
+      </div>
+
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s24-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_BASIC + 1)">אפשר להתחיל!</button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_PRACTICE_Q6)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 23 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 24: Basic Q1 — SingleChoiceQuestion ──────────────── -->
+  <section class="screen" data-screen="25" id="s25">
+
+    <div class="s15-progress">
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">שאלה 1</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 2</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 3</span>
+      </div>
+    </div>
+
+    <div class="s11-col" dir="rtl">
+      <h2 class="s11-question s11-anim" id="s22-question">כשאסטרונאוט נמצא פעם אחת על כדור הארץ, ופעם אחרת על הירח – מה השתנה?</h2>
+      <div class="s11-options" id="s22-options">
+        <div class="s11-option s11-anim" onclick="scqGenSelect(24,0)">
+          <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+          <span class="s11-option-text">המסה שלו</span>
+        </div>
+        <div class="s11-option s11-anim" onclick="scqGenSelect(24,1)">
+          <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+          <span class="s11-option-text">המשקל שלו</span>
+        </div>
+        <div class="s11-option s11-anim" onclick="scqGenSelect(24,2)">
+          <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+          <span class="s11-option-text">גם המסה וגם המשקל שלו</span>
+        </div>
+        <div class="s11-option s11-anim" onclick="scqGenSelect(24,3)">
+          <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+          <span class="s11-option-text">לא השתנה שום דבר</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="s11-feedback" id="s22-feedback" style="display:none" dir="rtl">
+      <div class="s11-fb-head">
+        <p class="s11-fb-title" id="s22-fb-title"></p>
+        <button class="s11-fb-close" onclick="scqGenCloseFeedback(24)" aria-label="סגור">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <p class="s11-fb-body" id="s22-fb-body"></p>
+    </div>
+
+    <div class="s11-hint-overlay" id="s22-hint-overlay" style="display:none">
+      <div class="s11-hint-blur"></div>
+      <div class="s11-hint-card" dir="rtl">
+        <div class="s11-hint-card-title">
+          <span>רמז</span>
+          <svg width="40" height="35" viewBox="0 0 40 35" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 3C14.5 3 10 7.5 10 13c0 3.9 2.1 7.3 5.3 9.2V26c0 .6.4 1 1 1h7.4c.6 0 1-.4 1-1v-3.8c3.2-1.9 5.3-5.3 5.3-9.2C30 7.5 25.5 3 20 3z" fill="white"/><rect x="15" y="28.5" width="10" height="2.5" rx="1.25" fill="white"/><rect x="15.5" y="32.5" width="9" height="2.5" rx="1.25" fill="white"/></svg>
+        </div>
+        <p class="s11-hint-body">מה תלוי בכוח הכבידה, המסה או המשקל של האסטרונאוט?</p>
+        <button class="s11-hint-back-btn" onclick="scqGenCloseHint(24)">חזרה לשאלה</button>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s22-check-btn"    class="btn-continue" disabled onclick="scqGenCheck(24)">צדקתי?</button>
+          <button id="s22-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_BASIC_Q1 + 1)">המשך</button>
+          <button id="s22-hint-btn"     class="btn-hint"     onclick="scqGenOpenHint(24)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            אפשר רמז?
+          </button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_BASIC)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 24 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 25: Basic Q2 — DropdownQuestion ───────────────────── -->
+  <section class="screen" data-screen="26" id="s26">
+
+    <div class="s15-progress">
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 1</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">שאלה 2</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 3</span>
+      </div>
+    </div>
+
+    <div class="s17-col">
+      <p class="s17-question s17-anim" id="s26q-question">התאימו בין המשפט למושג המתאים לו:</p>
+      <div class="s17-rows" id="s26q-rows">
+
+        <div class="s17-cell s17-anim">
+          <span class="s17-cell-label">א. תלות בכוח הכבידה של גרם השמיים</span>
+          <div class="s17-dd" id="dd-b2-alef" data-value="">
+            <button class="s17-dd-trigger" onclick="ddqGenToggle(25,'alef')">
+              <svg class="s17-dd-chev" width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15 1.5L8 8.5L1 1.5" stroke="#019de5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="s17-dd-status"></span><span class="s17-dd-val"></span>
+            </button>
+            <div class="s17-dd-panel" style="display:none">
+              <button class="s17-dd-panel-head" onclick="ddqGenToggle(25,'alef')"><svg class="s17-dd-chev" width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15 1.5L8 8.5L1 1.5" stroke="#019de5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="s17-dd-val"></span></button>
+              <button class="s17-dd-opt" onclick="ddqGenPick(25,'alef','מסה')">מסה</button>
+              <button class="s17-dd-opt" onclick="ddqGenPick(25,'alef','משקל')">משקל</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="s17-cell s17-anim">
+          <span class="s17-cell-label">ב. לא משתנה גם כאשר עוברים לכוכב אחר</span>
+          <div class="s17-dd" id="dd-b2-bet" data-value="">
+            <button class="s17-dd-trigger" onclick="ddqGenToggle(25,'bet')">
+              <svg class="s17-dd-chev" width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15 1.5L8 8.5L1 1.5" stroke="#019de5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="s17-dd-status"></span><span class="s17-dd-val"></span>
+            </button>
+            <div class="s17-dd-panel" style="display:none">
+              <button class="s17-dd-panel-head" onclick="ddqGenToggle(25,'bet')"><svg class="s17-dd-chev" width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15 1.5L8 8.5L1 1.5" stroke="#019de5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="s17-dd-val"></span></button>
+              <button class="s17-dd-opt" onclick="ddqGenPick(25,'bet','מסה')">מסה</button>
+              <button class="s17-dd-opt" onclick="ddqGenPick(25,'bet','משקל')">משקל</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="s17-cell s17-anim">
+          <span class="s17-cell-label">ג. כמות החומר שיש בגוף</span>
+          <div class="s17-dd" id="dd-b2-gimel" data-value="">
+            <button class="s17-dd-trigger" onclick="ddqGenToggle(25,'gimel')">
+              <svg class="s17-dd-chev" width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15 1.5L8 8.5L1 1.5" stroke="#019de5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="s17-dd-status"></span><span class="s17-dd-val"></span>
+            </button>
+            <div class="s17-dd-panel" style="display:none">
+              <button class="s17-dd-panel-head" onclick="ddqGenToggle(25,'gimel')"><svg class="s17-dd-chev" width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15 1.5L8 8.5L1 1.5" stroke="#019de5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="s17-dd-val"></span></button>
+              <button class="s17-dd-opt" onclick="ddqGenPick(25,'gimel','מסה')">מסה</button>
+              <button class="s17-dd-opt" onclick="ddqGenPick(25,'gimel','משקל')">משקל</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="s17-cell s17-anim">
+          <span class="s17-cell-label">ד. משתנה כאשר מתרחקים מכדור הארץ</span>
+          <div class="s17-dd" id="dd-b2-dalet" data-value="">
+            <button class="s17-dd-trigger" onclick="ddqGenToggle(25,'dalet')">
+              <svg class="s17-dd-chev" width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15 1.5L8 8.5L1 1.5" stroke="#019de5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="s17-dd-status"></span><span class="s17-dd-val"></span>
+            </button>
+            <div class="s17-dd-panel" style="display:none">
+              <button class="s17-dd-panel-head" onclick="ddqGenToggle(25,'dalet')"><svg class="s17-dd-chev" width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15 1.5L8 8.5L1 1.5" stroke="#019de5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="s17-dd-val"></span></button>
+              <button class="s17-dd-opt" onclick="ddqGenPick(25,'dalet','מסה')">מסה</button>
+              <button class="s17-dd-opt" onclick="ddqGenPick(25,'dalet','משקל')">משקל</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="s11-feedback" id="bq2-feedback" style="display:none" dir="rtl">
+      <div class="s11-fb-head">
+        <p class="s11-fb-title" id="bq2-fb-title"></p>
+        <button class="s11-fb-close" onclick="ddqGenCloseFeedback(25)" aria-label="סגור">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <p class="s11-fb-body" id="bq2-fb-body"></p>
+    </div>
+
+    <div class="s11-hint-overlay" id="bq2-hint-overlay" style="display:none">
+      <div class="s11-hint-blur"></div>
+      <div class="s11-hint-card" dir="rtl">
+        <div class="s11-hint-card-title">
+          <span>רמז</span>
+          <svg width="40" height="35" viewBox="0 0 40 35" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 3C14.5 3 10 7.5 10 13c0 3.9 2.1 7.3 5.3 9.2V26c0 .6.4 1 1 1h7.4c.6 0 1-.4 1-1v-3.8c3.2-1.9 5.3-5.3 5.3-9.2C30 7.5 25.5 3 20 3z" fill="white"/><rect x="15" y="28.5" width="10" height="2.5" rx="1.25" fill="white"/><rect x="15.5" y="32.5" width="9" height="2.5" rx="1.25" fill="white"/></svg>
+        </div>
+        <p class="s11-hint-body">מבין שני המושגים (מסה ומשקל) – מה תלוי בכוח הכבידה ולכן משתנה במעבר מגרם שמיים אחד לאחר, ומה נשאר קבוע בכל מקום ביקום?</p>
+        <button class="s11-hint-back-btn" onclick="ddqGenCloseHint(25)">חזרה לשאלה</button>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="bq2-check-btn"    class="btn-continue" disabled onclick="ddqGenCheck(25)">צדקתי?</button>
+          <button id="bq2-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_BASIC_Q2 + 1)">המשך</button>
+          <button id="bq2-hint-btn"     class="btn-hint"     onclick="ddqGenOpenHint(25)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            אפשר רמז?
+          </button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_BASIC_Q1)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 25 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 26: Basic Q3 — SingleChoiceQuestion ───────────────── -->
+  <section class="screen" data-screen="27" id="s27">
+
+    <div class="s15-progress">
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 1</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 2</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">שאלה 3</span>
+      </div>
+    </div>
+
+    <div class="s11-col" dir="rtl">
+      <h2 class="s11-question s11-anim" id="s24-question">איזה מהמשפטים הבאים הוא <strong>תצפית</strong>?</h2>
+      <div class="s11-options" id="s24-options">
+        <div class="s11-option s11-anim" onclick="scqGenSelect(26,0)">
+          <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+          <span class="s11-option-text">כוח הכבידה על הירח חלש יותר</span>
+        </div>
+        <div class="s11-option s11-anim" onclick="scqGenSelect(26,1)">
+          <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+          <span class="s11-option-text">המסה אינה תלויה בכוח הכבידה</span>
+        </div>
+        <div class="s11-option s11-anim" onclick="scqGenSelect(26,2)">
+          <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+          <span class="s11-option-text">המשקל תלוי בכוח הכבידה</span>
+        </div>
+        <div class="s11-option s11-anim" onclick="scqGenSelect(26,3)">
+          <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+          <span class="s11-option-text">עידן האסטרונאוט קופץ גבוה יותר על הירח</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="s11-feedback" id="s24-feedback" style="display:none" dir="rtl">
+      <div class="s11-fb-head">
+        <p class="s11-fb-title" id="s24-fb-title"></p>
+        <button class="s11-fb-close" onclick="scqGenCloseFeedback(26)" aria-label="סגור">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <p class="s11-fb-body" id="s24-fb-body"></p>
+    </div>
+
+    <div class="s11-hint-overlay" id="s24-hint-overlay" style="display:none">
+      <div class="s11-hint-blur"></div>
+      <div class="s11-hint-card" dir="rtl">
+        <div class="s11-hint-card-title">
+          <span>רמז</span>
+          <svg width="40" height="35" viewBox="0 0 40 35" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 3C14.5 3 10 7.5 10 13c0 3.9 2.1 7.3 5.3 9.2V26c0 .6.4 1 1 1h7.4c.6 0 1-.4 1-1v-3.8c3.2-1.9 5.3-5.3 5.3-9.2C30 7.5 25.5 3 20 3z" fill="white"/><rect x="15" y="28.5" width="10" height="2.5" rx="1.25" fill="white"/><rect x="15.5" y="32.5" width="9" height="2.5" rx="1.25" fill="white"/></svg>
+        </div>
+        <p class="s11-hint-body">מה מהמשפטים הוא משהו שניתן לראות בפועל, ללא פרשנות או הסבר?</p>
+        <button class="s11-hint-back-btn" onclick="scqGenCloseHint(26)">חזרה לשאלה</button>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s24-check-btn"    class="btn-continue" disabled onclick="scqGenCheck(26)">צדקתי?</button>
+          <button id="s24-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_BASIC_Q3 + 1)">המשך</button>
+          <button id="s24-hint-btn"     class="btn-hint"     onclick="scqGenOpenHint(26)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            אפשר רמז?
+          </button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_BASIC_Q2)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 26 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 27: TransitionScreen — תרגול סטנדרטי ב' ──────────── -->
+  <section class="screen" data-screen="28" id="s28">
+
+    <div class="s0-content">
+
+      <div class="s0-text">
+        <div class="s0-slot1"></div>
+        <p class="s12-suptitle s12-anim" id="s25-suptitle">יופי של עבודה!</p>
+        <h1 class="s12-bigtitle s12-anim" id="s25-bigtitle">הנה עוד שאלה אחת ברמת קושי גבוהה יותר.</h1>
+      </div>
+
+      <div class="s12-char-area">
+        <div class="s12-bubble-wrap s12-anim" id="s25-bubble">
+          <img class="s12-bubble-img" src="assets/img/hook-orange-bubble.svg" alt="">
+          <p class="s12-bubble-text" dir="rtl">ברור לי שתצליחו!</p>
+        </div>
+        <img src="assets/img/orange.png" class="s12-char-gif s12-anim" id="s25-char" alt="" aria-hidden="true">
+      </div>
+
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s25-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_STANDARD_B_Q2)">אפשר להתחיל!</button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_BASIC_Q3)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 27 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 28: Standard B Q2/2 — SingleChoiceQuestion ────────── -->
+  <section class="screen" data-screen="29" id="s29">
+
+    <div class="s15-progress">
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">שאלה 1</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 2</span>
+      </div>
+    </div>
+
+    <div class="sadv-layout">
+      <div class="sadv-qa-area">
+        <h2 class="s11-question" id="s26-question"><span class="s26-quote s11-anim" id="s26-quote">נועה כתבה ביומן המדע: "אני חושבת שכוח הכבידה<br>הפועל על גוף קטן ככל שמתרחקים מגרם שמיימי".</span><span class="s26-followup s11-anim" id="s26-followup">מה הופך את המשפט הזה להשערה מדעית?</span></h2>
+        <div class="s11-options" id="s26-options">
+          <div class="s11-option s11-anim" onclick="scqGenSelect(28,0)">
+            <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+            <span class="s11-option-text">אפשר לבדוק אותו באמצעות מדידות וניסויים</span>
+          </div>
+          <div class="s11-option s11-anim" onclick="scqGenSelect(28,1)">
+            <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+            <span class="s11-option-text">מדענים רבים מאמינים שזה נכון</span>
+          </div>
+          <div class="s11-option s11-anim" onclick="scqGenSelect(28,2)">
+            <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+            <span class="s11-option-text">הוא מבוסס על מה שאסטרונאוטים מרגישים בחלל</span>
+          </div>
+          <div class="s11-option s11-anim" onclick="scqGenSelect(28,3)">
+            <span class="s11-radio"><span class="s11-radio-icon"></span></span>
+            <span class="s11-option-text">הוא נשמע הגיוני ומתאים לשכל הישר</span>
+          </div>
+        </div>
+      </div>
+      <div class="sadv-img-area">
+        <div class="sadv-img-placeholder">
+          <button class="img-zoom-btn" type="button" aria-label="הגדלת התמונה"
+                  data-zoom-src="assets/img/noa.png" data-zoom-alt="נועה כותבת ביומן המדע" data-zoom-from="s26-img">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+
+          <img id="s26-img" class="sadv-img s11-anim" src="assets/img/noa.png" alt="נועה כותבת ביומן המדע">
+
+          <div class="s11-feedback" id="s26-feedback" style="display:none" dir="rtl">
+            <div class="s11-fb-head">
+              <p class="s11-fb-title" id="s26-fb-title"></p>
+              <button class="s11-fb-close" onclick="scqGenCloseFeedback(28)" aria-label="סגור">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <p class="s11-fb-body" id="s26-fb-body"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="s11-hint-overlay" id="s26-hint-overlay" style="display:none">
+      <div class="s11-hint-blur"></div>
+      <div class="s11-hint-card" dir="rtl">
+        <div class="s11-hint-card-title">
+          <span>רמז</span>
+          <svg width="40" height="35" viewBox="0 0 40 35" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 3C14.5 3 10 7.5 10 13c0 3.9 2.1 7.3 5.3 9.2V26c0 .6.4 1 1 1h7.4c.6 0 1-.4 1-1v-3.8c3.2-1.9 5.3-5.3 5.3-9.2C30 7.5 25.5 3 20 3z" fill="white"/><rect x="15" y="28.5" width="10" height="2.5" rx="1.25" fill="white"/><rect x="15.5" y="32.5" width="9" height="2.5" rx="1.25" fill="white"/></svg>
+        </div>
+        <p class="s11-hint-body">מה ההבדל בין דעה לבין השערה מדעית? מה חייב להיות אפשרי כדי שרעיון ייחשב מדעי?</p>
+        <button class="s11-hint-back-btn" onclick="scqGenCloseHint(28)">חזרה לשאלה</button>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s26-check-btn"    class="btn-continue" disabled onclick="scqGenCheck(28)">צדקתי?</button>
+          <button id="s26-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_STANDARD_B_TOMATO)">המשך</button>
+          <button id="s26-hint-btn"     class="btn-hint"     style="display:none" onclick="scqGenOpenHint(28)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            אפשר רמז?
+          </button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_STANDARD_B)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 28 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 30 (id="s46" — kept from its original append; see below):
+       Standard-B שאלה 2 — SCQImage (runner's mass loss) ──
+       Added to restore the script's real Standard-B שאלה 2 (slides 90-93 in
+       the 120726 script; content updated per the newer "(1)" version, which
+       replaced an earlier tomato/moon-scale question with this one) — the
+       module only ever implemented שאלה 1 (screen 29). Originally appended
+       as data-screen=46 to avoid renumbering 30-45; later renumbered to 30
+       (right after Noa's question) so it sits in its correct place in the
+       sequence — screens formerly 30-45 shifted to 31-46, and 47 shifted to
+       48 (TOTAL_SCREENS bumped to 49). Its own id/element ids (s46-*) were
+       left unchanged — only data-screen values and the switch/case + const
+       navigation targets needed to move. Navigation: 29 -> 30 -> 31,
+       30 -> back -> 29.
+       No hint button: script explicitly says "ללא רמז בשאלה זו".
+       Feedback renders as an overlay on top of the image (matches Screen
+       29 / Noa question's layout) — see the matching CSS override block
+       near the [data-screen="29"] one in css/style.css.
+       Needs a real image/gif ("אצן רץ עד קו סיום") — not yet sourced. -->
+  <section class="screen" data-screen="30" id="s46">
+
+    <div class="s15-progress">
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 1</span>
+      </div>
+      <div class="s13-prog-line is-done"></div>
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">שאלה 2</span>
+      </div>
+    </div>
+
+    <div class="sadv-layout">
+      <div class="sadv-qa-area">
+        <p class="s11-question s11-anim" id="s46-question"></p>
+        <div class="s11-options" id="s46-options">
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(45,0)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(45,1)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(45,2)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(45,3)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+        </div>
+      </div>
+      <div class="sadv-img-area">
+        <div class="sadv-img-placeholder">
+          <button class="img-zoom-btn" type="button" aria-label="הגדלת התמונה"
+                  data-zoom-src="" data-zoom-alt="" data-zoom-from="s46-img">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+
+          <img id="s46-img" class="sadv-img s11-anim" src="" alt="אצן רץ עד קו הסיום">
+          <span>תמונה — יתווסף בהמשך</span>
+
+          <div class="s11-feedback" id="s46-feedback" style="display:none" dir="rtl">
+            <div class="s11-fb-head">
+              <p class="s11-fb-title" id="s46-fb-title"></p>
+              <button class="s11-fb-close" onclick="scqGenCloseFeedback(45)" aria-label="סגור">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <p class="s11-fb-body" id="s46-fb-body"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s46-check-btn"    class="btn-continue" disabled onclick="scqGenCheck(45)">צדקתי?</button>
+          <button id="s46-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_CLASS_TASK)">המשך</button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_STANDARD_B_Q2)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 46 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 29: TransitionScreen — משימת כיתה ───────────────── -->
+  <section class="screen" data-screen="31" id="s30">
+
+    <div class="s0-content">
+      <div class="s0-text">
+        <div class="s0-slot1"></div>
+        <p  class="s12-suptitle s12-anim" id="s27-suptitle"></p>
+        <h1 class="s12-bigtitle s12-anim" id="s27-bigtitle"></h1>
+        <p  class="s12-subtitle s12-anim" id="s27-subtitle"></p>
+      </div>
+      <div class="s12-char-area">
+        <div class="s12-bubble-wrap s12-anim" id="s27-bubble">
+          <img class="s12-bubble-img" src="assets/img/hook-orange-bubble.svg" alt="">
+          <p class="s12-bubble-text" dir="rtl" id="s27-bubble-text"></p>
+        </div>
+        <video id="s27-char" class="s12-char-gif s12-anim" autoplay loop muted playsinline aria-hidden="true"></video>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s27-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_CLASS_TASK_INST)"></button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_STANDARD_B_Q2)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 29 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 30: Class Task Instructions ───────────────────────── -->
+  <!-- Script slide 93 note: "כפתור 'הזכירו לי את הניסוי...' דלוק תמיד.
+       לחיצה עליו מקפיצה פופאפ עם תזכורת הניסוי (בשקף הבא)" — the reminder
+       popup text (slide 94) is the same Galileo story already told in full
+       on Screen 21 (.s-galileo-*), just recapped here as a popup. Reuses
+       the s28 card's blue/white visual language (not the .s11-hint-*
+       styling) since this is a content recap, not a "רמז" hint. -->
+  <section class="screen" data-screen="32" id="s31">
+
+    <div class="s28-wrap">
+      <div class="s28-card">
+        <div class="s28-card-header">
+          <h2 class="s28-title s28-anim" id="s28-title"></h2>
+          <p  class="s28-subtitle s28-anim" id="s28-subtitle"></p>
+        </div>
+        <ol class="s28-steps" id="s28-steps"></ol>
+      </div>
+    </div>
+
+    <div class="s28-reminder-overlay" id="s31-reminder-popup" style="display:none">
+      <div class="s28-reminder-blur"></div>
+      <div class="s28-reminder-card" dir="rtl">
+        <p class="s28-reminder-title"><strong>שנת 1589. גלילאו גליליי, פרופסור צעיר באוניברסיטת פיזה, מחליט לאתגר רעיון שנחשב אמת מוחלטת עד אז.</strong></p>
+        <p class="s28-reminder-body">אריסטו טען שגוף עם מסה כבדה יפול מהר יותר מגוף עם מסה נמוכה. כולם האמינו לזה, אף אחד לא טרח לבדוק.</p>
+        <p class="s28-reminder-body">גלילאו החליט לבדוק אם זה נכון. הוא עלה למגדל פיזה, החזיק שני כדורים - אחד מברזל ואחד מעץ - ושחרר אותם יחד לקרקע.</p>
+        <p class="s28-reminder-body"><strong>התוצאה: שניהם נחתו בו-זמנית.</strong></p>
+        <button class="s28-reminder-close-btn" onclick="closeGalileoReminder()">חזרה למשימה</button>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s28-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_CLASS_TASK_FORM)"></button>
+          <button class="btn-hint" onclick="openGalileoReminder()">הזכירו לי את הניסוי של גלילאו</button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_CLASS_TASK)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 30 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 31: Class Task Reflection Form ────────────────────── -->
+  <section class="screen" data-screen="33" id="s32">
+
+    <div class="s29-wrap">
+      <h2 class="s29-title s29-anim" id="s29-title"></h2>
+      <div class="s29-card">
+        <div class="s29-fields s29-anim" id="s29-fields"></div>
+        <div class="s29-feedback" id="s29-feedback" style="display:none">
+          <video class="s29-char" id="s29-char" autoplay loop muted playsinline aria-hidden="true"></video>
+          <p class="s29-feedback-text" id="s29-feedback-text"></p>
+        </div>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s29-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_CLASS_TASK_WRAPUP)"></button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_CLASS_TASK_INST)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 32 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 47: Class Task wrap-up — scientific tools (script slide 99) ──
+       Reverted to the blue instructions-card look (.s28-*, same component
+       as screen 31) instead of the speech-bubble layout, per explicit
+       request. All text (title + tools list) sits inside the blue card;
+       the glasses-wearing character gif is pinned to the physical right
+       via the same direction:ltr row trick used elsewhere (e.g. the row
+       reuses .s12-char-area). -->
+  <section class="screen" data-screen="34" id="s47">
+
+    <div class="s0-content">
+      <div class="s12-char-area">
+        <div class="s28-card s12-anim" id="s47-card">
+          <div class="s28-card-header s12-anim" id="s47-card-header">
+            <h2 class="s28-title" id="s47-bigtitle"></h2>
+          </div>
+          <p class="s28-body s12-anim" id="s47-bubble-text" dir="rtl"></p>
+        </div>
+        <video id="s47-char" class="s12-char-gif s12-anim" autoplay loop muted playsinline aria-hidden="true"></video>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s47-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_ADVANCED)"></button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_CLASS_TASK_FORM)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 47 ───────────────────────────────────────────────── -->
+  <!-- ── End screen 31 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 32: TransitionScreen — שאלות מתקדמות ─────────────── -->
+  <section class="screen" data-screen="35" id="s33">
+
+    <div class="s0-content">
+      <div class="s0-text">
+        <div class="s0-slot1"></div>
+        <p  class="s12-suptitle s12-anim" id="s30-suptitle"></p>
+        <h1 class="s12-bigtitle s12-anim" id="s30-bigtitle"></h1>
+        <p  class="s12-subtitle s12-anim" id="s30-subtitle"></p>
+      </div>
+      <div class="s12-char-area">
+        <div class="s12-bubble-wrap s12-anim" id="s30-bubble">
+          <img class="s12-bubble-img" src="assets/img/hook-orange-bubble.svg" alt="">
+          <p class="s12-bubble-text" dir="rtl" id="s30-bubble-text"></p>
+        </div>
+        <video id="s30-char" class="s12-char-gif s12-anim" autoplay loop muted playsinline aria-hidden="true"></video>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s30-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_ADVANCED_Q1)"></button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_CLASS_TASK_FORM)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 32 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen: Applet Guide — מסך הדרכה ליישומון (script slide 99) ──────
+       Not a question, not a TransitionScreen — an instruction screen that
+       introduces the interactive Galileo free-fall applet used by
+       Advanced Q1 (next screen). Right: instructional text, verbatim from
+       the script, with the three required phrases emphasized exactly as
+       written ("מסה שונה" / "מסה זהה" / "האם גם הם יגיעו באותו זמן
+       לקרקע?"). Left: a dedicated, final placeholder container
+       (#galileo-applet-container) sized/positioned for the real
+       interactive HTML widget the script calls for; the widget itself is
+       pending direct producer coordination (see LOCAL_SETUP.md / script
+       note "דברו איתי בעפ בנושא – רוני"). The dev-only label inside the
+       placeholder is a visual stand-in only, not real content. Reuses the
+       .sadv-layout two-column grid already used by sibling SCQImage
+       screens for visual consistency. -->
+  <section class="screen" data-screen="36" id="sAdvGuide">
+
+    <div class="sadv-layout">
+      <div class="sadv-qa-area guide-text-area">
+        <h1 class="guide-heading guide-anim" id="sAdvGuide-heading">שחזור הניסוי של גלילאו:</h1>
+        <p class="guide-body guide-anim" id="sAdvGuide-p1" dir="rtl">בהתנסות הזו תשחזרו ותרחיבו את הניסוי של גלילאו. גלילאו זרק שני חפצים בעלי<br><strong>מסה שונה</strong>, שהגיעו באותו זמן לקרקע.</p>
+        <p class="guide-body guide-anim" id="sAdvGuide-p2" dir="rtl">וכאן - תתנסו בזריקת 2 חפצים בעלי <strong>מסה זהה</strong>, אך שונים בצורתם.<br><strong>האם גם הם יגיעו באותו זמן לקרקע?</strong></p>
+        <p class="guide-body guide-anim" id="sAdvGuide-p3" dir="rtl">התנסו בעצמכם, ובדקו (כאן, משמאל <span class="guide-arrow" aria-hidden="true">&#8592;</span>).</p>
+        <p class="guide-body guide-anim" id="sAdvGuide-p4" dir="rtl">תוצאות זמני הנחיתה הן לצורך המחשה בלבד.</p>
+      </div>
+      <div class="sadv-img-area">
+        <div id="galileo-applet-container" class="sadv-img-placeholder guide-anim">
+          <div class="applet-embed-wrap">
+            <iframe src="assets/widgets/galileo-applet/index.html" title="יישומון ניסוי גלילאו — הפלת חפצים" frameborder="0"></iframe>
+          </div>
+          <button class="applet-expand-btn" onclick="galileoOpenModal()" aria-label="הגדל את היישומון">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+              <circle cx="11" cy="11" r="7" stroke="white" stroke-width="2"/>
+              <line x1="16.5" y1="16.5" x2="22" y2="22" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+              <line x1="8" y1="11" x2="14" y2="11" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              <line x1="11" y1="8" x2="11" y2="14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="sAdvGuide-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_ADVANCED_Q1)">המשך</button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_ADVANCED)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen: Applet Guide ────────────────────────────────────── -->
+
+  <!-- ── Screen 33: Advanced Q1 — SCQImage (section א — שחזור ניסוי גלילאו) ──
+       Was showing stale/unrelated content (an "astronaut" question absent
+       from the current script). Replaced per script slides 99-107: a
+       Galileo free-fall reconstruction, presented as two sections (א, ב).
+       This screen is section א (slide 100-103); section ב is the next
+       screen (see "Screen 33b" below).
+       No hint button: script explicitly says "ללא כפתור רמז" for both
+       sections.
+       Script calls for a live interactive HTML widget here ("יישומון –
+       שמור בתיקייה כקובץ HTML להמחשה"), explicitly flagged by the producer
+       as needing direct coordination ("דברו איתי בעפ בנושא – רוני") — not
+       something to build from guesswork. Left as a placeholder pending
+       that widget; the question itself (text/options/feedback/attempts)
+       is fully implemented and playable without it. -->
+  <section class="screen" data-screen="37" id="s34">
+
+    <div class="s15-progress">
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">שאלה 1</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 2</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 3</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 4</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 5</span>
+      </div>
+    </div>
+
+    <div class="sadv-layout">
+      <div class="sadv-qa-area">
+        <p class="q-galileo-recap s11-anim" id="s31-heading"></p>
+        <p class="s11-question s11-anim" id="s31-question"></p>
+        <div class="s11-options" id="s31-options">
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(33,0)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(33,1)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(33,2)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(33,3)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+        </div>
+      </div>
+      <div class="sadv-img-area">
+        <div class="sadv-img-placeholder" style="position:relative;">
+          <div id="s31-img" class="applet-embed-outer s11-anim">
+            <div class="applet-embed-wrap">
+              <iframe src="assets/widgets/galileo-applet/index.html" title="יישומון ניסוי גלילאו — הפלת חפצים" frameborder="0"></iframe>
+            </div>
+          </div>
+          <button class="applet-expand-btn" onclick="galileoOpenModal()" aria-label="הגדל את היישומון">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+              <circle cx="11" cy="11" r="7" stroke="white" stroke-width="2"/>
+              <line x1="16.5" y1="16.5" x2="22" y2="22" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+              <line x1="8" y1="11" x2="14" y2="11" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              <line x1="11" y1="8" x2="11" y2="14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+
+          <div class="s11-feedback" id="s31-feedback" style="display:none" dir="rtl">
+            <div class="s11-fb-head">
+              <p class="s11-fb-title" id="s31-fb-title"></p>
+              <button class="s11-fb-close" onclick="scqGenCloseFeedback(33)" aria-label="סגור">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <p class="s11-fb-body" id="s31-fb-body"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="s11-hint-overlay" id="s31-hint-overlay" style="display:none">
+      <div class="s11-hint-blur"></div>
+      <div class="s11-hint-card" dir="rtl">
+        <div class="s11-hint-card-title">
+          <span id="s31-hint-title">רמז</span>
+          <svg width="40" height="35" viewBox="0 0 40 35" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 3C14.5 3 10 7.5 10 13c0 3.9 2.1 7.3 5.3 9.2V26c0 .6.4 1 1 1h7.4c.6 0 1-.4 1-1v-3.8c3.2-1.9 5.3-5.3 5.3-9.2C30 7.5 25.5 3 20 3z" fill="white"/><rect x="15" y="28.5" width="10" height="2.5" rx="1.25" fill="white"/><rect x="15.5" y="32.5" width="9" height="2.5" rx="1.25" fill="white"/></svg>
+        </div>
+        <p class="s11-hint-body" id="s31-hint-body"></p>
+        <button class="s11-hint-back-btn" onclick="scqGenCloseHint(33)">חזרה לשאלה</button>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s31-check-btn"    class="btn-continue" disabled onclick="scqGenCheck(33)">צדקתי?</button>
+          <button id="s31-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_ADVANCED_Q1B)">המשך</button>
+          <button id="s31-hint-btn"     class="btn-hint" style="display:none" onclick="scqGenOpenHint(33)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            אפשר רמז?
+          </button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_ADVANCED)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 33 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 33b: Advanced Q1 — SCQImage (section ב — שחזור ניסוי גלילאו) ──
+       New screen, inserted between section א (screen 33/34) and Advanced
+       Q2 (screen 34/35) — script slides 104-107. Same "no hint" /
+       "יישומון" placeholder notes as section א apply here too; see that
+       screen's comment for the full explanation. Still "שאלה 1 מתוך 5" in
+       the progress bar (same question, second part) — matches the
+       production notes' own labeling ("שאלה 1 מתוך 5 – סעיף ב'"). -->
+  <section class="screen" data-screen="38" id="s34b">
+
+    <div class="s15-progress">
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">שאלה 1</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 2</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 3</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 4</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 5</span>
+      </div>
+    </div>
+
+    <div class="sadv-layout">
+      <div class="sadv-qa-area">
+        <p class="q-galileo-recap s11-anim" id="s34b-heading"></p>
+        <p class="s11-question s11-anim" id="s34b-question"></p>
+        <div class="s11-options" id="s34b-options">
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(50,0)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(50,1)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(50,2)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(50,3)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+        </div>
+      </div>
+      <div class="sadv-img-area">
+        <div class="sadv-img-placeholder" style="position:relative;">
+          <div id="s34b-img" class="applet-embed-outer s11-anim">
+            <div class="applet-embed-wrap">
+              <iframe src="assets/widgets/galileo-applet/index.html" title="יישומון ניסוי גלילאו — הפלת חפצים" frameborder="0"></iframe>
+            </div>
+          </div>
+          <button class="applet-expand-btn" onclick="galileoOpenModal()" aria-label="הגדל את היישומון">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+              <circle cx="11" cy="11" r="7" stroke="white" stroke-width="2"/>
+              <line x1="16.5" y1="16.5" x2="22" y2="22" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+              <line x1="8" y1="11" x2="14" y2="11" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              <line x1="11" y1="8" x2="11" y2="14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+
+          <div class="s11-feedback" id="s34b-feedback" style="display:none" dir="rtl">
+            <div class="s11-fb-head">
+              <p class="s11-fb-title" id="s34b-fb-title"></p>
+              <button class="s11-fb-close" onclick="scqGenCloseFeedback(50)" aria-label="סגור">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <p class="s11-fb-body" id="s34b-fb-body"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s34b-check-btn"    class="btn-continue" disabled onclick="scqGenCheck(50)">צדקתי?</button>
+          <button id="s34b-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_ADVANCED_Q2A)">המשך</button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_ADVANCED_Q1)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 33b ──────────────────────────────────────────────── -->
+
+  <!-- ── Modal: full-size Galileo applet (shared by screens 36/37/38) ───
+       Docked previews are scaled to ~62% to fit beside the question
+       text and read small; this shows the same widget (assets/widgets/
+       galileo-applet/) at ~81% of its natural size, the largest that
+       fits the 1280×710 canvas. Same open/close pattern as the screen
+       22 video modal above (galileoOpenModal/galileoCloseModal). -->
+  <div class="galileo-modal-overlay" id="galileo-modal" style="display:none" role="dialog" aria-modal="true" aria-label="יישומון ניסוי גלילאו — מוגדל">
+    <button class="galileo-modal-close" onclick="galileoCloseModal()" aria-label="סגור">✕</button>
+    <div class="galileo-modal-box">
+      <div class="applet-embed-wrap">
+        <iframe id="galileo-modal-iframe" src="about:blank" data-src="assets/widgets/galileo-applet/index.html" title="יישומון ניסוי גלילאו — הפלת חפצים" frameborder="0"></iframe>
+      </div>
+    </div>
+  </div>
+  <!-- ── End modal ──────────────────────────────────────────────────── -->
+
+  <!-- ── Screen 34: Advanced Q2a — VIQ ─────────────────────────────── -->
+  <section class="screen" data-screen="39" id="s35">
+
+    <div class="s15-progress">
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 1</span>
+      </div>
+      <div class="s13-prog-line is-done"></div>
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">שאלה 2</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 3</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 4</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 5</span>
+      </div>
+    </div>
+
+    <div class="sadv-layout">
+      <div class="sadv-qa-area">
+        <p class="viq-question viq-anim" id="s32-question"></p>
+        <p class="viq-context viq-anim"  id="s32-context"></p>
+        <p class="viq-subq viq-anim"     id="s32-subq"></p>
+        <div class="viq-sentence viq-anim" id="s32-sentence"></div>
+      </div>
+      <div class="sadv-img-area">
+        <div class="s11-feedback" id="s32-feedback" style="display:none" dir="rtl">
+          <div class="s11-fb-head">
+            <p class="s11-fb-title" id="s32-fb-title"></p>
+            <button class="s11-fb-close" onclick="viqGenCloseFeedback(34)" aria-label="סגור">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+          <p class="s11-fb-body" id="s32-fb-body"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="s11-hint-overlay" id="s32-hint-overlay" style="display:none">
+      <div class="s11-hint-blur"></div>
+      <div class="s11-hint-card" dir="rtl">
+        <div class="s11-hint-card-title">
+          <span id="s32-hint-title">רמז</span>
+          <svg width="40" height="35" viewBox="0 0 40 35" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 3C14.5 3 10 7.5 10 13c0 3.9 2.1 7.3 5.3 9.2V26c0 .6.4 1 1 1h7.4c.6 0 1-.4 1-1v-3.8c3.2-1.9 5.3-5.3 5.3-9.2C30 7.5 25.5 3 20 3z" fill="white"/><rect x="15" y="28.5" width="10" height="2.5" rx="1.25" fill="white"/><rect x="15.5" y="32.5" width="9" height="2.5" rx="1.25" fill="white"/></svg>
+        </div>
+        <p class="s11-hint-body" id="s32-hint-body"></p>
+        <button class="s11-hint-back-btn" onclick="viqGenCloseHint(34)">חזרה לשאלה</button>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s32-check-btn"    class="btn-continue" disabled onclick="viqGenCheck(34)">צדקתי?</button>
+          <button id="s32-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_ADVANCED_Q3)">המשך</button>
+          <button id="s32-hint-btn"     class="btn-hint" style="display:none" onclick="viqGenOpenHint(34)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            אפשר רמז?
+          </button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_ADVANCED_Q1B)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 34 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 40 (data-screen="40") removed: was an orphaned, fabricated
+       question ("does mass change when sugar dissolves in water?") with no
+       basis anywhere in the production script. The real Advanced Q2 (sugar,
+       ValueInputQuestion, script slides 108-112) is a single-part question,
+       already fully implemented on data-screen="39" — no section ב exists
+       for it in the script. Confirmed unreachable before removal: no other
+       screen's nav pointed at data-screen="40", and the SCREEN_ADVANCED_Q2B
+       constant was defined but never referenced anywhere. -->
+
+  <!-- ── Screen 36: Advanced Q3 — SCQImage ────────────────────────── -->
+  <section class="screen" data-screen="41" id="s37">
+
+    <div class="s15-progress">
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 1</span>
+      </div>
+      <div class="s13-prog-line is-done"></div>
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 2</span>
+      </div>
+      <div class="s13-prog-line is-done"></div>
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">שאלה 3</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 4</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 5</span>
+      </div>
+    </div>
+
+    <div class="sadv-layout">
+      <div class="sadv-qa-area">
+        <p class="s11-question s11-anim" id="s34-question"></p>
+        <div class="s11-options" id="s34-options">
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(36,0)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(36,1)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(36,2)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(36,3)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+        </div>
+      </div>
+      <div class="sadv-img-area">
+        <div class="sadv-img-placeholder" style="position:relative;">
+          <button class="img-zoom-btn" type="button" aria-label="הגדלת התמונה"
+                  data-zoom-src="" data-zoom-alt="" data-zoom-from="s34-img">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+
+          <img id="s34-img" class="sadv-img s11-anim" src="" alt="חקלאי בשדה אורז">
+
+          <div class="s11-feedback" id="s34-feedback" style="display:none" dir="rtl">
+            <div class="s11-fb-head">
+              <p class="s11-fb-title" id="s34-fb-title"></p>
+              <button class="s11-fb-close" onclick="scqGenCloseFeedback(36)" aria-label="סגור">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <p class="s11-fb-body" id="s34-fb-body"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="s11-hint-overlay" id="s34-hint-overlay" style="display:none">
+      <div class="s11-hint-blur"></div>
+      <div class="s11-hint-card" dir="rtl">
+        <div class="s11-hint-card-title">
+          <span id="s34-hint-title">רמז</span>
+          <svg width="40" height="35" viewBox="0 0 40 35" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 3C14.5 3 10 7.5 10 13c0 3.9 2.1 7.3 5.3 9.2V26c0 .6.4 1 1 1h7.4c.6 0 1-.4 1-1v-3.8c3.2-1.9 5.3-5.3 5.3-9.2C30 7.5 25.5 3 20 3z" fill="white"/><rect x="15" y="28.5" width="10" height="2.5" rx="1.25" fill="white"/><rect x="15.5" y="32.5" width="9" height="2.5" rx="1.25" fill="white"/></svg>
+        </div>
+        <p class="s11-hint-body" id="s34-hint-body"></p>
+        <button class="s11-hint-back-btn" onclick="scqGenCloseHint(36)">חזרה לשאלה</button>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s34-check-btn"    class="btn-continue" disabled onclick="scqGenCheck(36)">צדקתי?</button>
+          <button id="s34-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_ADVANCED_Q4)">המשך</button>
+          <button id="s34-hint-btn"     class="btn-hint" style="display:none" onclick="scqGenOpenHint(36)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            אפשר רמז?
+          </button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_ADVANCED_Q2A)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 37 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 37: Advanced Q4 — SCQ with context ─────────────────── -->
+  <section class="screen" data-screen="42" id="s38">
+
+    <div class="s15-progress">
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 1</span>
+      </div>
+      <div class="s13-prog-line is-done"></div>
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 2</span>
+      </div>
+      <div class="s13-prog-line is-done"></div>
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 3</span>
+      </div>
+      <div class="s13-prog-line is-done"></div>
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">שאלה 4</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">שאלה 5</span>
+      </div>
+    </div>
+
+    <div class="sadv-layout">
+      <div class="sadv-qa-area" dir="rtl">
+        <p class="s11-context s11-anim" id="s35-context"></p>
+        <h2 class="s11-question s11-anim" id="s35-question"></h2>
+        <div class="s11-options" id="s35-options">
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(37,0)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(37,1)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(37,2)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(37,3)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+        </div>
+      </div>
+      <div class="sadv-img-area">
+        <div class="s11-feedback" id="s35-feedback" style="display:none" dir="rtl">
+          <div class="s11-fb-head">
+            <p class="s11-fb-title" id="s35-fb-title"></p>
+            <button class="s11-fb-close" onclick="scqGenCloseFeedback(37)" aria-label="סגור">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+          <p class="s11-fb-body" id="s35-fb-body"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="s11-hint-overlay" id="s35-hint-overlay" style="display:none">
+      <div class="s11-hint-blur"></div>
+      <div class="s11-hint-card" dir="rtl">
+        <div class="s11-hint-card-title">
+          <span id="s35-hint-title">רמז</span>
+          <svg width="40" height="35" viewBox="0 0 40 35" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 3C14.5 3 10 7.5 10 13c0 3.9 2.1 7.3 5.3 9.2V26c0 .6.4 1 1 1h7.4c.6 0 1-.4 1-1v-3.8c3.2-1.9 5.3-5.3 5.3-9.2C30 7.5 25.5 3 20 3z" fill="white"/><rect x="15" y="28.5" width="10" height="2.5" rx="1.25" fill="white"/><rect x="15.5" y="32.5" width="9" height="2.5" rx="1.25" fill="white"/></svg>
+        </div>
+        <p class="s11-hint-body" id="s35-hint-body"></p>
+        <button class="s11-hint-back-btn" onclick="scqGenCloseHint(37)">חזרה לשאלה</button>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s35-check-btn"    class="btn-continue" disabled onclick="scqGenCheck(37)">צדקתי?</button>
+          <button id="s35-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_ADVANCED_Q5)">המשך</button>
+          <button id="s35-hint-btn"     class="btn-hint" style="display:none" onclick="scqGenOpenHint(37)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            אפשר רמז?
+          </button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_ADVANCED_Q3)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 37 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 38: Advanced Q5 — Hotspot Graph ────────────────────── -->
+  <section class="screen" data-screen="43" id="s39">
+
+    <div class="s15-progress">
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 1</span>
+      </div>
+      <div class="s13-prog-line is-done"></div>
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 2</span>
+      </div>
+      <div class="s13-prog-line is-done"></div>
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 3</span>
+      </div>
+      <div class="s13-prog-line is-done"></div>
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">שאלה 4</span>
+      </div>
+      <div class="s13-prog-line is-done"></div>
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">שאלה 5</span>
+      </div>
+    </div>
+
+    <div class="hsp-col">
+      <p class="hsp-question" id="s36-question"></p>
+      <div class="hsp-graph-row hsp-anim">
+        <div class="hsp-graph-wrap" style="position:relative;">
+          <button class="img-zoom-btn" type="button" aria-label="הגדלת הגרף"
+                  data-zoom-from="s36-img" data-zoom-alt="גרף רכבת הרים">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+          <img id="s36-img" class="hsp-graph-img" src="" alt="גרף רכבת הרים">
+          <div class="hsp-overlay" id="s36-overlay"></div>
+
+          <div class="s11-feedback" id="s36-feedback" style="display:none" dir="rtl">
+            <div class="s11-fb-head">
+              <p class="s11-fb-title" id="s36-fb-title"></p>
+              <button class="s11-fb-close" onclick="hspGenCloseFeedback(38)" aria-label="סגור">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <p class="s11-fb-body" id="s36-fb-body"></p>
+          </div>
+        </div>
+        <div class="hsp-legend" id="s36-legend"></div>
+      </div>
+    </div>
+
+    <div class="s11-hint-overlay" id="s36-hint-overlay" style="display:none">
+      <div class="s11-hint-blur"></div>
+      <div class="s11-hint-card" dir="rtl">
+        <div class="s11-hint-card-title">
+          <span id="s36-hint-title">רמז</span>
+          <svg width="40" height="35" viewBox="0 0 40 35" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 3C14.5 3 10 7.5 10 13c0 3.9 2.1 7.3 5.3 9.2V26c0 .6.4 1 1 1h7.4c.6 0 1-.4 1-1v-3.8c3.2-1.9 5.3-5.3 5.3-9.2C30 7.5 25.5 3 20 3z" fill="white"/><rect x="15" y="28.5" width="10" height="2.5" rx="1.25" fill="white"/><rect x="15.5" y="32.5" width="9" height="2.5" rx="1.25" fill="white"/></svg>
+        </div>
+        <p class="s11-hint-body" id="s36-hint-body"></p>
+        <button class="s11-hint-back-btn" onclick="hspGenCloseHint(38)">חזרה לשאלה</button>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s36-check-btn"    class="btn-continue" disabled onclick="hspGenCheck(38)">צדקתי?</button>
+          <button id="s36-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_ADVANCED_Q5 + 1)">המשך</button>
+          <button id="s36-hint-btn"     class="btn-hint" style="display:none" onclick="hspGenOpenHint(38)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            אפשר רמז?
+          </button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_ADVANCED_Q4)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 38 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 39: TransitionScreen — שאלת השיא ──────────────────── -->
+  <section class="screen" data-screen="44" id="s40">
+
+    <div class="s0-content">
+      <div class="s0-text">
+        <div class="s0-slot1"></div>
+        <p  class="s12-suptitle s12-anim" id="s37-suptitle"></p>
+        <h1 class="s12-bigtitle s12-anim" id="s37-bigtitle"></h1>
+        <p  class="s12-subtitle s12-anim" id="s37-subtitle"></p>
+      </div>
+      <div class="s12-char-area">
+        <div class="s12-bubble-wrap s12-anim" id="s37-bubble">
+          <img class="s12-bubble-img" src="assets/img/hook-orange-bubble.svg" alt="">
+          <p class="s12-bubble-text" dir="rtl" id="s37-bubble-text"></p>
+        </div>
+        <video id="s37-char" class="s12-char-gif s12-anim" autoplay loop muted playsinline aria-hidden="true"></video>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s37-continue" class="btn-continue btn-advance" disabled onclick="goTo(SCREEN_PEAK_Q1)"></button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_ADVANCED_Q5)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 39 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 40: Peak Q1 — SCQImage (section א) ─────────────────── -->
+  <section class="screen" data-screen="45" id="s41">
+
+    <div class="s15-progress">
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">סעיף א</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">סעיף ב</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">סעיף ג</span>
+      </div>
+    </div>
+
+    <div class="sadv-layout">
+      <div class="sadv-qa-area">
+        <p class="s11-context s11-anim" id="s38-context"></p>
+        <p class="s11-question s11-anim" id="s38-question"></p>
+        <div class="s11-options" id="s38-options">
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(40,0)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(40,1)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(40,2)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(40,3)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+        </div>
+      </div>
+      <div class="sadv-img-area">
+        <div class="sadv-img-placeholder" style="position:relative;">
+          <button class="img-zoom-btn" type="button" aria-label="הגדלת התמונה"
+                  data-zoom-src="" data-zoom-alt="מרכיבים" data-zoom-from="s38-img">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+
+          <img id="s38-img" class="sadv-img s11-anim" src="" alt="מרכיבים">
+
+          <div class="s11-feedback" id="s38-feedback" style="display:none" dir="rtl">
+            <div class="s11-fb-head">
+              <p class="s11-fb-title" id="s38-fb-title"></p>
+              <button class="s11-fb-close" onclick="scqGenCloseFeedback(40)" aria-label="סגור">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <p class="s11-fb-body" id="s38-fb-body"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="s11-hint-overlay" id="s38-hint-overlay" style="display:none">
+      <div class="s11-hint-blur"></div>
+      <div class="s11-hint-card" dir="rtl">
+        <div class="s11-hint-card-title">
+          <span id="s38-hint-title">רמז</span>
+          <svg width="40" height="35" viewBox="0 0 40 35" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 3C14.5 3 10 7.5 10 13c0 3.9 2.1 7.3 5.3 9.2V26c0 .6.4 1 1 1h7.4c.6 0 1-.4 1-1v-3.8c3.2-1.9 5.3-5.3 5.3-9.2C30 7.5 25.5 3 20 3z" fill="white"/><rect x="15" y="28.5" width="10" height="2.5" rx="1.25" fill="white"/><rect x="15.5" y="32.5" width="9" height="2.5" rx="1.25" fill="white"/></svg>
+        </div>
+        <p class="s11-hint-body" id="s38-hint-body"></p>
+        <button class="s11-hint-back-btn" onclick="scqGenCloseHint(40)">חזרה לשאלה</button>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s38-check-btn"    class="btn-continue" disabled onclick="scqGenCheck(40)">צדקתי?</button>
+          <button id="s38-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_PEAK_Q2)">המשך</button>
+          <button id="s38-hint-btn"     class="btn-hint" style="display:none" onclick="scqGenOpenHint(40)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            אפשר רמז?
+          </button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_PEAK)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 40 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 41: Peak Q2 — SAQ (section ב, נכון/לא נכון) ────────── -->
+  <section class="screen" data-screen="46" id="s42">
+
+    <div class="s15-progress">
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">סעיף א</span>
+      </div>
+      <div class="s13-prog-line is-done"></div>
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">סעיף ב</span>
+      </div>
+      <div class="s15-prog-line"></div>
+      <div class="s15-prog-item">
+        <div class="s15-prog-dot"></div>
+        <span class="s15-prog-label">סעיף ג</span>
+      </div>
+    </div>
+
+    <div class="sadv-layout">
+      <div class="sadv-qa-area">
+        <p class="s11-context s11-anim" id="s39-context"></p>
+        <p class="s11-question s11-anim" id="s39-question"></p>
+        <div class="saq-statements" id="s39-statements"></div>
+      </div>
+      <div class="sadv-img-area">
+        <div class="sadv-img-placeholder" style="position:relative;">
+          <button class="img-zoom-btn" type="button" aria-label="הגדלת התמונה"
+                  data-zoom-src="" data-zoom-alt="מרכיבים" data-zoom-from="s39-img">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+
+          <img id="s39-img" class="sadv-img s11-anim" src="" alt="מרכיבים">
+
+          <div class="s11-feedback" id="s39-feedback" style="display:none" dir="rtl">
+            <div class="s11-fb-head">
+              <p class="s11-fb-title" id="s39-fb-title"></p>
+              <button class="s11-fb-close" onclick="document.getElementById('s39-feedback').style.display='none'" aria-label="סגור">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <p class="s11-fb-body" id="s39-fb-body"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="s11-hint-overlay" id="s39-hint-overlay" style="display:none">
+      <div class="s11-hint-blur"></div>
+      <div class="s11-hint-card" dir="rtl">
+        <div class="s11-hint-card-title">
+          <span id="s39-hint-title">רמז</span>
+          <svg width="40" height="35" viewBox="0 0 40 35" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 3C14.5 3 10 7.5 10 13c0 3.9 2.1 7.3 5.3 9.2V26c0 .6.4 1 1 1h7.4c.6 0 1-.4 1-1v-3.8c3.2-1.9 5.3-5.3 5.3-9.2C30 7.5 25.5 3 20 3z" fill="white"/><rect x="15" y="28.5" width="10" height="2.5" rx="1.25" fill="white"/><rect x="15.5" y="32.5" width="9" height="2.5" rx="1.25" fill="white"/></svg>
+        </div>
+        <p class="s11-hint-body" id="s39-hint-body"></p>
+        <button class="s11-hint-back-btn" onclick="saqGenCloseHint(41)">חזרה לשאלה</button>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s39-check-btn"    class="btn-continue" disabled onclick="saqGenCheck(41)">צדקתי?</button>
+          <button id="s39-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="goTo(SCREEN_PEAK_Q3)">המשך</button>
+          <button id="s39-hint-btn"     class="btn-hint" onclick="saqGenOpenHint(41)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            אפשר רמז?
+          </button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_PEAK_Q1)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 41 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 42: Peak Q3 — SCQImage (section ג) ─────────────────── -->
+  <section class="screen" data-screen="47" id="s43">
+
+    <div class="s15-progress">
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">סעיף א</span>
+      </div>
+      <div class="s13-prog-line is-done"></div>
+      <div class="s15-prog-item is-done">
+        <div class="s15-prog-dot is-done"></div>
+        <span class="s15-prog-label">סעיף ב</span>
+      </div>
+      <div class="s13-prog-line is-done"></div>
+      <div class="s15-prog-item is-current">
+        <div class="s15-prog-dot is-current"></div>
+        <span class="s15-prog-label">סעיף ג</span>
+      </div>
+    </div>
+
+    <div class="sadv-layout">
+      <div class="sadv-qa-area">
+        <p class="s11-context s11-anim" id="s40-context"></p>
+        <p class="s11-question s11-anim" id="s40-question"></p>
+        <div class="s11-options" id="s40-options">
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(42,0)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(42,1)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(42,2)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+          <button class="s11-option s11-anim" role="radio" onclick="scqGenSelect(42,3)"><span class="s11-radio"><span class="s11-radio-icon"></span></span><span class="s11-option-text"></span></button>
+        </div>
+      </div>
+      <div class="sadv-img-area">
+        <div class="sadv-img-placeholder" style="position:relative;">
+          <button class="img-zoom-btn" type="button" aria-label="הגדלת התמונה"
+                  data-zoom-src="" data-zoom-alt="קמח" data-zoom-from="s40-img">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+
+          <img id="s40-img" class="sadv-img s11-anim" src="" alt="קמח">
+
+          <div class="s11-feedback" id="s40-feedback" style="display:none" dir="rtl">
+            <div class="s11-fb-head">
+              <p class="s11-fb-title" id="s40-fb-title"></p>
+              <button class="s11-fb-close" onclick="scqGenCloseFeedback(42)" aria-label="סגור">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <p class="s11-fb-body" id="s40-fb-body"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="s11-hint-overlay" id="s40-hint-overlay" style="display:none">
+      <div class="s11-hint-blur"></div>
+      <div class="s11-hint-card" dir="rtl">
+        <div class="s11-hint-card-title">
+          <span id="s40-hint-title">רמז</span>
+          <svg width="40" height="35" viewBox="0 0 40 35" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 3C14.5 3 10 7.5 10 13c0 3.9 2.1 7.3 5.3 9.2V26c0 .6.4 1 1 1h7.4c.6 0 1-.4 1-1v-3.8c3.2-1.9 5.3-5.3 5.3-9.2C30 7.5 25.5 3 20 3z" fill="white"/><rect x="15" y="28.5" width="10" height="2.5" rx="1.25" fill="white"/><rect x="15.5" y="32.5" width="9" height="2.5" rx="1.25" fill="white"/></svg>
+        </div>
+        <p class="s11-hint-body" id="s40-hint-body"></p>
+        <button class="s11-hint-back-btn" onclick="scqGenCloseHint(42)">חזרה לשאלה</button>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s40-check-btn"    class="btn-continue" disabled onclick="scqGenCheck(42)">צדקתי?</button>
+          <button id="s40-continue-btn" class="btn-continue btn-advance" style="display:none" onclick="routeAfterPeak()">המשך</button>
+          <button id="s40-hint-btn"     class="btn-hint" style="display:none" onclick="scqGenOpenHint(42)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 21h6M10 15.8V17h4v-1.2A2 2 0 0 1 15.333 15.076C16.945 13.95 18 12.097 18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.097 1.055 3.95 2.667 5.076A2 2 0 0 1 10 15.8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            אפשר רמז?
+          </button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_PEAK_Q2)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 42 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 43: End — Failure ──────────────────────────────────── -->
+  <section class="screen" data-screen="48" id="s44">
+
+    <div class="s0-content">
+      <div class="s0-text">
+        <div class="s0-slot1"></div>
+        <h1 class="s12-bigtitle s12-anim" id="s41-bigtitle"></h1>
+        <p  class="s12-subtitle s12-anim" id="s41-subtitle"></p>
+      </div>
+      <div class="s12-char-area">
+        <video id="s41-char" class="s12-char-gif s12-anim" autoplay loop muted playsinline aria-hidden="true"></video>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s41-continue" class="btn-continue btn-advance" disabled onclick="goTo(0)"></button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_PEAK_Q3)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 43 ───────────────────────────────────────────────── -->
+
+  <!-- ── Screen 44: End — Success ──────────────────────────────────── -->
+  <section class="screen" data-screen="49" id="s45">
+
+    <div class="s0-content">
+      <div class="s0-text">
+        <div class="s0-slot1"></div>
+        <h1 class="s12-bigtitle s12-anim" id="s42-bigtitle"></h1>
+        <p  class="s12-subtitle s12-anim" id="s42-subtitle"></p>
+      </div>
+      <div class="s12-char-area">
+        <video id="s42-char" class="s12-char-gif s12-anim" autoplay loop muted playsinline aria-hidden="true"></video>
+      </div>
+    </div>
+
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-continue-area">
+          <button id="s42-continue" class="btn-continue btn-advance" disabled onclick="goTo(0)"></button>
+        </div>
+        <div class="nav-back-area">
+          <button class="btn-back" onclick="goTo(SCREEN_PEAK_Q3)">חזרה</button>
+        </div>
+      </div>
+    </nav>
+
+  </section>
+  <!-- ── End screen 44 ───────────────────────────────────────────────── -->
+
+  <!-- ── MODALS (must be outside all .screen divs, inside #app) ── -->
+  <div id="hint-modal"       class="modal-overlay hidden" role="dialog" aria-modal="true"></div>
+  <div id="help-popup"       class="help-popup hidden"    role="tooltip"></div>
+  <div id="revelation-popup" class="popup-overlay hidden" role="dialog" aria-modal="true"></div>
+
+  <!-- ── IMAGE ZOOM MODAL — global, shared across all screens ──── -->
+  <!-- Spec: _global-components.md → "Image zoom" section         -->
+  <div id="img-zoom-modal" class="img-zoom-modal hidden" role="dialog" aria-modal="true" data-zoom-close="true">
+    <div class="img-zoom-panel">
+      <button class="img-zoom-close" type="button" aria-label="סגור" data-zoom-close="true">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M1 1L14 14M14 1L1 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="img-zoom-stage"></div>
+    </div>
+  </div>
+
+  <!-- ── REPORT PROBLEM button (global, outside all .screen divs) ── -->
+  <!-- Default: gray circle. Hover: blue circle + "מצאתם בעיה?" label -->
+  <!-- SVG fills use var(--flag-color) which changes on hover via CSS -->
+  <button id="report-btn" class="flag-btn" type="button" aria-label="מצאתם בעיה?">
+    <div class="flag-circle">
+      <div class="flag-inner">
+        <!-- Pole: occupies left 6.62% of the inner icon area -->
+        <div class="flag-pole">
+          <svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible"
+               viewBox="0 0 0.794329 17.0005" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0.397164 17C0.177722 17 0 16.8239 0 16.6065V0.393501C0 0.176082 0.177722 0 0.397164 0C0.616607 0 0.794329 0.176082 0.794329 0.393501V16.607C0.794329 16.8245 0.616607 17.0005 0.397164 17.0005V17Z"
+                  fill="var(--flag-color, #484848)"/>
+          </svg>
+        </div>
+        <!-- Flag body: occupies top ~55% of icon area, full width -->
+        <div class="flag-body-shape">
+          <svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible"
+               viewBox="0 0 12 9.31542" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.76227 9.31542C1.91972 9.31542 1.06958 9.15545 0.213483 8.71363C0.0823588 8.64599 0 8.51124 0 8.36469V0.950975C0 0.814619 0.0715221 0.687925 0.188558 0.615989C0.305594 0.54459 0.45189 0.537611 0.574886 0.598811C0.577053 0.599884 0.578679 0.600958 0.580846 0.602032C2.31309 1.49586 4.05563 1.046 5.90003 0.569821C7.80946 0.0770055 9.78336 -0.431915 11.7865 0.601495C11.9176 0.669136 12 0.803882 12 0.950438V8.36415C12 8.4946 11.9344 8.617 11.8255 8.69001C11.7166 8.76302 11.5774 8.77805 11.4555 8.72974C11.443 8.7249 11.4311 8.71954 11.4197 8.71363C9.68745 7.8198 7.94491 8.26967 6.10051 8.7453C5.00709 9.02714 3.89199 9.31489 2.76281 9.31489L2.76227 9.31542ZM0.793787 8.11935C2.45559 8.87307 4.13094 8.44038 5.90003 7.98407C7.62469 7.53903 9.40191 7.08057 11.2062 7.75806V1.19631C9.54441 0.442591 7.86906 0.875281 6.09997 1.33159C4.37531 1.77663 2.59755 2.23509 0.793787 1.5576V8.11935Z"
+                  fill="var(--flag-color, #484848)"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <span class="flag-label">מצאתם בעיה?</span>
+  </button>
+
+</div><!-- /#app -->
+<script src="js/layout-config.js"></script>
+<script src="js/main.js?v=21"></script>
+</body>
+</html>

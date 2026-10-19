@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>האם גלילאו באמת צדק?</title>
+<style>
+/* ===== פונט Assistant — קובץ מקומי קיים בפרויקט (assets/fonts) ===== */
+@font-face {
+  font-family: 'Assistant';
+  src: url('/assets/fonts/Assistant-VariableFont_wght.ttf') format('truetype-variations'),
+       url('/assets/fonts/Assistant-VariableFont_wght.ttf') format('truetype');
+  font-weight: 200 800;
+  font-display: swap;
+}
+
+/* ===== בסיס ===== */
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Assistant', Arial, sans-serif; }
+body {
+  background: #e8edf2;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;   /* המסגרת בגובה התוכן בלבד — בלי זנב לבן ריק */
+  padding: 1rem 0.75rem;
+  direction: rtl;
+  /* אין min-height:100vh בכוונה — רכיב מוטמע ב-iframe, לא עמוד עצמאי;
+     min-height:100vh היה מותח את הגוף לגובה ה-viewport של ה-iframe
+     (כפי שנקבע חיצונית ע"י המארח) גם כשהתוכן בפועל נמוך יותר, ויוצר
+     שטח ריק מתחת ליישומון. הגובה כעת נגזר אך ורק מהתוכן בפועל. */
+}
+
+.wrap {
+  width: 100%; max-width: 880px;
+  background: #F8FAFC;
+  border-radius: 18px;
+  border: 1.5px solid #CBD5E1;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(15,23,42,0.08);
+  position: relative;
+}
+
+/* ===== כותרת ===== */
+.hdr { background: #1A5FAD; padding: 12px 20px; text-align: center; }
+.hdr p {
+  color: #fff; font-size: 18px; font-weight: 600; line-height: 1.35;
+  text-wrap: balance;
+}
+.hdr em { color: #FFD60A; font-style: normal; font-weight: 700; }
+
+/* ===== הודעת שגיאה (toast) ===== */
+.toast {
+  position: absolute;
+  top: 76px; right: 12px; left: 12px;
+  background: #FEF2F2;
+  border: 1.5px solid #DC2626;
+  color: #991B1B;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  z-index: 30;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.25s, transform 0.25s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* ===== מבנה ראשי — Grid: אזור ניסוי (~74%) + מחסן חפצים (~26%) ===== */
+.main {
+  display: grid;
+  grid-template-columns: minmax(0, 2.8fr) minmax(190px, 1fr);
+  align-items: stretch;
+}
+
+.arena { display: flex; flex-direction: column; border-left: 1.5px solid #CBD5E1; min-width: 0; }
+
+/* ===== שורת הצבתות ===== */
+.claw-row { display: flex; align-items: flex-end; padding: 10px 10px 8px; background: #fff; border-bottom: 1px solid #E2E8F0; gap: 6px; }
+.claw-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; }
+.claw-sublabel { font-size: 14px; font-weight: 600; color: #475569; margin-bottom: 2px; }
+
+.claw-wrap { position: relative; width: 62px; height: 72px; }
+.claw-wrap svg { display: block; }
+
+/* זרועות פתוחות/סגורות */
+.claw-wrap .arms-closed { display: none; }
+.claw-wrap .arms-open { display: block; }
+.claw-wrap.loaded .arms-closed { display: block; }
+.claw-wrap.loaded .arms-open { display: none; }
+
+/* אזור שחרור ריק — מקווקו */
+.drop-hint {
+  position: absolute;
+  bottom: 2px; right: 50%;
+  transform: translateX(50%);
+  width: 34px; height: 34px;
+  border: 2px dashed #93B8D8;
+  border-radius: 50%;
+  transition: background 0.15s, border-color 0.15s;
+}
+.claw-wrap.loaded .drop-hint { display: none; }
+.claw-col.dragover .drop-hint { background: #DBEAFE; border-color: #1A5FAD; }
+
+/* החפץ המוחזק בצבת */
+.held-obj {
+  position: absolute;
+  bottom: 3px; right: 50%;
+  transform: translateX(50%);
+  width: 38px; height: 38px;
+  object-fit: contain;
+  display: none;
+  cursor: pointer;
+}
+.claw-wrap.loaded .held-obj { display: block; }
+.state-falling .held-obj, .state-landed .held-obj { cursor: default; }
+
+/* ===== כפתור שחרר ===== */
+.release-col { min-width: 104px; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; padding-bottom: 2px; }
+.btn-release {
+  background: #1A5FAD; color: #fff;
+  border: none; border-radius: 9px;
+  padding: 11px 22px;
+  min-height: 44px;
+  font-size: 16px; font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, transform 0.1s;
+}
+.btn-release:hover:not(:disabled) { background: #144a87; }
+.btn-release:active:not(:disabled) { transform: scale(0.96); }
+.btn-release:disabled { background: #CBD5E1; color: #64748B; cursor: not-allowed; }
+.btn-release:focus-visible, .btn-next:focus-visible, .obj-card:focus-visible {
+  outline: 3px solid #F59E0B; outline-offset: 2px;
+}
+
+/* ===== אזור הנפילה ===== */
+.fall-section { flex: 1; display: flex; position: relative; overflow: hidden; min-height: 230px; }
+.fall-lane { flex: 1; background: #EEF4FB; border-left: 1px dashed #CBD5E1; display: flex; flex-direction: column; align-items: center; padding-top: 4px; position: relative; }
+.fall-lane:last-child { border-left: none; }
+.dash-line { width: 2px; flex: 1; margin-bottom: 12px; background: repeating-linear-gradient(to bottom,#93B8D8 0,#93B8D8 5px,transparent 5px,transparent 10px); }
+.floor-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 9px; background: #8FA8C0; border-top: 2px solid #5B7F9B; z-index: 5; }
+.floor-txt { position: absolute; bottom: 13px; left: 50%; transform: translateX(-50%); font-size: 12px; color: #475569; font-weight: 600; white-space: nowrap; z-index: 6; background: rgba(238,244,251,0.85); padding: 1px 7px; border-radius: 4px; }
+
+/* ===== סרגל גובה — 10 מטר ===== */
+.ruler { position: absolute; top: 0; bottom: 9px; right: 0; width: 48px; z-index: 6; pointer-events: none; }
+.ruler-line { position: absolute; top: 0; bottom: 0; right: 8px; width: 2px; background: #5B7F9B; }
+.ruler-tick { position: absolute; right: 4px; width: 10px; height: 2px; background: #5B7F9B; transform: translateY(-1px); }
+.ruler-tick.minor { width: 6px; right: 6px; background: #93B8D8; }
+.ruler-tick span {
+  position: absolute; right: 16px; top: -8px;
+  font-size: 12px; font-weight: 700; color: #475569;
+  background: rgba(238,244,251,0.85); padding: 0 4px; border-radius: 3px;
+  white-space: nowrap; line-height: 1.3;
+}
+.ruler-tick.floor-tick span { top: -15px; }
+.ruler-tick.top-tick span { top: 3px; }   /* תווית "10 מ'" מתחת לשנת — לא נחתכת למעלה */
+
+.falling-obj {
+  position: absolute;
+  top: 0; right: 50%;
+  transform: translateX(50%);
+  width: 44px; height: 44px;
+  object-fit: contain;
+  z-index: 4;
+  will-change: top;
+}
+
+/* ===== שעוני עצור ===== */
+.timers { display: flex; }
+.timer-box { flex: 1; background: #0F172A; padding: 6px 0; text-align: center; border-left: 1px solid #1E293B; }
+.timer-box:last-child { border-left: none; }
+.timer-num { font-family: 'Courier New', monospace; font-size: 27px; font-weight: 700; color: #4ADE80; letter-spacing: 2px; direction: ltr; }
+.timer-lbl { font-size: 13px; color: #6EE7A8; margin-top: 2px; font-weight: 600; }
+
+/* ===== מחסן חפצים ===== */
+.bank { min-width: 0; background: #fff; display: flex; flex-direction: column; padding: 8px 8px; gap: 6px; overflow: hidden; }
+.bank-hdr { font-size: 16px; font-weight: 700; color: #334155; text-align: center; margin-bottom: 1px; }
+
+.obj-card {
+  flex: 0 0 auto;   /* גובה אחידה קבועה — ר' min-height */
+  min-height: 102px;
+  border: 1.5px dashed #B0C4D8;
+  border-radius: 9px;
+  padding: 6px 10px;
+  display: flex; flex-direction: row; align-items: center; gap: 8px;
+  cursor: grab;
+  background: #F8FAFC;
+  transition: border-color 0.15s, box-shadow 0.15s, opacity 0.2s;
+  user-select: none;
+  -webkit-user-drag: element;
+}
+.obj-card:hover:not(.used) { border-color: #1A5FAD; box-shadow: 0 2px 6px rgba(26,95,173,0.12); }
+.obj-card.used { opacity: 0.3; border-style: solid; cursor: default; pointer-events: none; }
+.obj-card.dragging { opacity: 0.5; }
+.state-falling .obj-card, .state-landed .obj-card { cursor: default; pointer-events: none; }
+.obj-icon {
+  width: 50px; height: 50px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.obj-icon img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.obj-info { flex: 1; min-width: 0; text-align: right; }
+.obj-name {
+  font-size: 15px; color: #1E293B; font-weight: 600; line-height: 1.2;
+  text-wrap: balance;
+}
+.obj-details { font-size: 12px; color: #64748B; font-weight: 500; line-height: 1.15; margin-top: 0; text-wrap: balance; }
+.mass-pill { display: inline-block; margin-top: 1px; background: #E0F2FE; color: #0369A1; font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 8px; }
+
+/* אנימציית "קפיצה חזרה" של זוג שגוי */
+@keyframes shakeBack {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(4px); }
+  50% { transform: translateX(-4px); }
+  75% { transform: translateX(3px); }
+}
+.obj-card.bounce { animation: shakeBack 0.4s ease; }
+
+/* ===== כפתור "לנסות זוג נוסף" — בתחתית המחסן ===== */
+.btn-next {
+  margin-top: auto;
+  width: 100%;
+  background: #F1F5F9; color: #94A3B8;
+  border: 1px solid #CBD5E1; border-radius: 8px;
+  padding: 11px 16px; font-size: 16px; font-weight: 600;
+  min-height: 44px;
+  cursor: not-allowed;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.btn-next.active {
+  background: #1A5FAD; color: #fff; border-color: #1A5FAD;
+  cursor: pointer;
+}
+.btn-next.active:hover { background: #144a87; }
+
+/* נגישות — טקסט לקוראי מסך בלבד */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .obj-card.bounce { animation: none; }
+}
+
+/* ===== מצב צר — מחסן עובר מתחת לאזור הניסוי, כרטיסים בגריד 2–3 טורים ===== */
+@media (max-width: 700px) {
+  .main { grid-template-columns: 1fr; }
+  .arena { border-left: none; border-bottom: 1.5px solid #CBD5E1; }
+  .bank {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    align-content: start;
+    max-height: none;
+    overflow-y: visible;
+  }
+  .bank-hdr, .btn-next { grid-column: 1 / -1; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="hdr">
+    <h1 class="sr-only">האם גלילאו באמת צדק?</h1>
+    <p>גררו <em>שני חפצים בעלי אותה מסה</em> לזרועות, ולחצו 'שחרר'.</p>
+  </header>
+
+  <div class="toast" id="toast" role="alert" aria-live="assertive"></div>
+
+  <div class="main" id="main">
+    <div class="arena">
+
+      <div class="claw-row">
+        <!-- זרוע ימין -->
+        <div class="claw-col" id="clawColR" data-claw="R">
+          <div class="claw-sublabel">זרוע ימין</div>
+          <div class="claw-wrap" id="clawR">
+            <svg width="62" height="72" viewBox="0 0 62 72" aria-hidden="true">
+              <line x1="31" y1="0" x2="31" y2="8" stroke="#475569" stroke-width="3" stroke-linecap="round"/>
+              <rect x="10" y="8" width="42" height="15" rx="4" fill="#334155" stroke="#1E293B" stroke-width="0.5"/>
+              <rect x="24" y="11" width="14" height="9" rx="2" fill="#475569"/>
+              <g class="arms-open">
+                <path d="M17,23 C9,33 6,45 9,57" stroke="#334155" stroke-width="5" fill="none" stroke-linecap="round"/>
+                <path d="M9,57 C9,63 13,67 17,65" stroke="#334155" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M45,23 C53,33 56,45 53,57" stroke="#334155" stroke-width="5" fill="none" stroke-linecap="round"/>
+                <path d="M53,57 C53,63 49,67 45,65" stroke="#334155" stroke-width="4" fill="none" stroke-linecap="round"/>
+              </g>
+              <g class="arms-closed">
+                <path d="M17,23 C14,36 16,50 20,60" stroke="#334155" stroke-width="5" fill="none" stroke-linecap="round"/>
+                <path d="M20,60 C21,66 26,68 28,64" stroke="#334155" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M45,23 C48,36 46,50 42,60" stroke="#334155" stroke-width="5" fill="none" stroke-linecap="round"/>
+                <path d="M42,60 C41,66 36,68 34,64" stroke="#334155" stroke-width="4" fill="none" stroke-linecap="round"/>
+              </g>
+            </svg>
+            <div class="drop-hint" aria-hidden="true"></div>
+            <img class="held-obj" id="heldR" src="" alt="" title="להחזרה למחסן — לחיצה">
+          </div>
+        </div>
+
+        <!-- כפתור שחרר -->
+        <div class="release-col">
+          <button class="btn-release" id="btnRelease" disabled aria-label="שחרר את שני החפצים לנפילה">שחרר</button>
+        </div>
+
+        <!-- זרוע שמאל -->
+        <div class="claw-col" id="clawColL" data-claw="L">
+          <div class="claw-sublabel">זרוע שמאל</div>
+          <div class="claw-wrap" id="clawL">
+            <svg width="62" height="72" viewBox="0 0 62 72" aria-hidden="true">
+              <line x1="31" y1="0" x2="31" y2="8" stroke="#475569" stroke-width="3" stroke-linecap="round"/>
+              <rect x="10" y="8" width="42" height="15" rx="4" fill="#334155" stroke="#1E293B" stroke-width="0.5"/>
+              <rect x="24" y="11" width="14" height="9" rx="2" fill="#475569"/>
+              <g class="arms-open">
+                <path d="M17,23 C9,33 6,45 9,57" stroke="#334155" stroke-width="5" fill="none" stroke-linecap="round"/>
+                <path d="M9,57 C9,63 13,67 17,65" stroke="#334155" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M45,23 C53,33 56,45 53,57" stroke="#334155" stroke-width="5" fill="none" stroke-linecap="round"/>
+                <path d="M53,57 C53,63 49,67 45,65" stroke="#334155" stroke-width="4" fill="none" stroke-linecap="round"/>
+              </g>
+              <g class="arms-closed">
+                <path d="M17,23 C14,36 16,50 20,60" stroke="#334155" stroke-width="5" fill="none" stroke-linecap="round"/>
+                <path d="M20,60 C21,66 26,68 28,64" stroke="#334155" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M45,23 C48,36 46,50 42,60" stroke="#334155" stroke-width="5" fill="none" stroke-linecap="round"/>
+                <path d="M42,60 C41,66 36,68 34,64" stroke="#334155" stroke-width="4" fill="none" stroke-linecap="round"/>
+              </g>
+            </svg>
+            <div class="drop-hint" aria-hidden="true"></div>
+            <img class="held-obj" id="heldL" src="" alt="" title="להחזרה למחסן — לחיצה">
+          </div>
+        </div>
+      </div>
+
+      <!-- אזור נפילה -->
+      <div class="fall-section" id="fallSection">
+        <div class="fall-lane" id="laneR"><div class="dash-line"></div></div>
+        <div class="fall-lane" id="laneL"><div class="dash-line"></div></div>
+        <div class="ruler" aria-label="סרגל גובה: הנפילה מגובה 10 מטר">
+          <div class="ruler-line"></div>
+          <!-- טיקים נבנים ב-JS: 0 עד 10 מטר -->
+        </div>
+        <div class="floor-bar"></div>
+        <div class="floor-txt">רצפה</div>
+      </div>
+
+      <!-- שעונים -->
+      <div class="timers">
+        <div class="timer-box">
+          <div class="timer-num" id="timerR" aria-label="שעון עצור זרוע ימין">00.00</div>
+          <div class="timer-lbl">שניות</div>
+        </div>
+        <div class="timer-box">
+          <div class="timer-num" id="timerL" aria-label="שעון עצור זרוע שמאל">00.00</div>
+          <div class="timer-lbl">שניות</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- מחסן חפצים -->
+    <div class="bank" id="bank" aria-label="מחסן חפצים לבחירה">
+      <div class="bank-hdr">חפצים לבחירה</div>
+      <!-- הקלפים נבנים ב-JS -->
+      <button class="btn-next" id="btnNext" disabled>לנסות זוג נוסף ›</button>
+    </div>
+  </div>
+
+  <div class="sr-only" aria-live="polite" id="srStatus"></div>
+</div>
+
+<script>
+'use strict';
+
+/* ============================================================
+   נתוני החפצים — הזמנים מאומתים פיזיקלית, אין לשנות!
+   T  = זמן נפילה מ-10 מטר (שניות)
+   vt = מהירות סופית לצורך צורת עקומת הנפילה בלבד
+        (Infinity = נפילה חופשית כמעט טהורה)
+   name/details מפוצלים כדי למנוע שבירות שורה מכוערות של השם המלא —
+   מפתחות, מסות, תמונות וזמני נפילה נשארו זהים למקור.
+   ============================================================ */
+const G = 9.81;
+const OBJECTS = {
+  crumpled: { name: 'A4 מקומט',        details: '',              mass: 5,  img: '/assets/widgets/galileo-applet/images/כדור נייר מקומט.png', T: 1.43,  vt: Infinity },
+  disk:     { name: 'דיסקית פלסטלינה', details: '',              mass: 30, img: '/assets/widgets/galileo-applet/images/פלסטלינה שטוחה.png',  T: 2.30,  vt: 5 },
+  tennis:   { name: 'כדור טניס',       details: 'קוטר 7 ס"מ',    mass: 57, img: '/assets/widgets/galileo-applet/images/כדור טניס.png',        T: 1.53,  vt: 14 },
+  flat:     { name: 'דף A4 פתוח',      details: '',              mass: 5,  img: '/assets/widgets/galileo-applet/images/A4.png',               T: 10.10, vt: 1 },
+  steel:    { name: 'גולת פלדה',       details: 'קוטר 2.4 ס"מ',  mass: 57, img: '/assets/widgets/galileo-applet/images/גולת מתכת.png',        T: 1.43,  vt: Infinity },
+  clay:     { name: 'כדור פלסטלינה',   details: '',              mass: 30, img: '/assets/widgets/galileo-applet/images/כדור פלסטלינה.png',    T: 1.43,  vt: Infinity }
+};
+/* סדר מעורבב במחסן — לא לפי זוגות (מאושר בוויירפריים) */
+const BANK_ORDER = ['crumpled', 'disk', 'tennis', 'flat', 'steel', 'clay'];
+
+/* תווית מלאה (שם + פרטים) — לשימוש בהכרזות נגישות והודעות */
+function fullLabel(key) {
+  const o = OBJECTS[key];
+  return o.details ? o.name + ', ' + o.details : o.name;
+}
+
+/* עקומת נפילה: מרחק שנפל (מטרים) אחרי t שניות */
+function fallDistance(key, t) {
+  const o = OBJECTS[key];
+  if (o.vt === Infinity) return 0.5 * G * t * t;
+  const vt = o.vt;
+  return (vt * vt / G) * Math.log(Math.cosh(G * t / vt));
+}
+/* מקדם נירמול — כך שהנחיתה תתרחש בדיוק בזמן T המאומת */
+const FALL_SCALE = {};
+for (const key in OBJECTS) FALL_SCALE[key] = 10 / fallDistance(key, OBJECTS[key].T);
+
+/* ============================================================
+   מצב היישומון
+   states: idle | one_loaded | ready | falling | landed
+   ============================================================ */
+const state = {
+  phase: 'idle',
+  claws: { R: null, L: null }   // key של חפץ או null
+};
+
+const els = {
+  bank: document.getElementById('bank'),
+  clawWrap: { R: document.getElementById('clawR'), L: document.getElementById('clawL') },
+  clawCol:  { R: document.getElementById('clawColR'), L: document.getElementById('clawColL') },
+  held:     { R: document.getElementById('heldR'), L: document.getElementById('heldL') },
+  lane:     { R: document.getElementById('laneR'), L: document.getElementById('laneL') },
+  timer:    { R: document.getElementById('timerR'), L: document.getElementById('timerL') },
+  btnRelease: document.getElementById('btnRelease'),
+  btnNext: document.getElementById('btnNext'),
+  toast: document.getElementById('toast'),
+  main: document.getElementById('main'),
+  srStatus: document.getElementById('srStatus')
+};
+
+/* ============================================================
+   בניית מחסן החפצים
+   ============================================================ */
+BANK_ORDER.forEach(key => {
+  const o = OBJECTS[key];
+  const card = document.createElement('div');
+  card.className = 'obj-card';
+  card.id = 'card-' + key;
+  card.setAttribute('draggable', 'true');
+  card.setAttribute('role', 'button');
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('aria-label', fullLabel(key) + ', מסה ' + o.mass + ' גרם. לחיצה או גרירה לטעינה לזרוע.');
+  card.dataset.key = key;
+  card.innerHTML =
+    '<div class="obj-icon"><img src="' + o.img + '" alt="" draggable="false"></div>' +
+    '<div class="obj-info"><div class="obj-name">' + o.name + '</div>' +
+    (o.details ? '<div class="obj-details">' + o.details + '</div>' : '') +
+    '<div class="mass-pill">' + o.mass + ' גרם</div></div>';
+
+  /* גרירה */
+  card.addEventListener('dragstart', e => {
+    if (!canLoad(key)) { e.preventDefault(); return; }
+    e.dataTransfer.setData('text/plain', key);
+    e.dataTransfer.effectAllowed = 'move';
+    card.classList.add('dragging');
+  });
+  card.addEventListener('dragend', () => card.classList.remove('dragging'));
+
+  /* חלופה נגישה: לחיצה / מקלדת — טעינה לזרוע פנויה */
+  card.addEventListener('click', () => loadToFreeClaw(key));
+  card.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); loadToFreeClaw(key); }
+  });
+
+  els.bank.insertBefore(card, document.getElementById('btnNext'));
+});
+
+/* ============================================================
+   אזורי שחרור (drop zones) — שתי הזרועות
+   ============================================================ */
+['R', 'L'].forEach(side => {
+  const col = els.clawCol[side];
+  col.addEventListener('dragover', e => {
+    if (state.phase === 'falling' || state.phase === 'landed') return;
+    if (state.claws[side] !== null) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    col.classList.add('dragover');
+  });
+  col.addEventListener('dragleave', () => col.classList.remove('dragover'));
+  col.addEventListener('drop', e => {
+    e.preventDefault();
+    col.classList.remove('dragover');
+    const key = e.dataTransfer.getData('text/plain');
+    if (key && OBJECTS[key]) tryLoad(key, side);
+  });
+
+  /* לחיצה על חפץ מוחזק — החזרה למחסן (לפני שחרור) */
+  els.held[side].addEventListener('click', () => {
+    if (state.phase === 'falling' || state.phase === 'landed') return;
+    unload(side);
+  });
+});
+
+/* ============================================================
+   לוגיקת טעינה
+   ============================================================ */
+function canLoad(key) {
+  if (state.phase === 'falling' || state.phase === 'landed') return false;
+  if (state.claws.R === key || state.claws.L === key) return false;
+  return true;
+}
+
+function loadToFreeClaw(key) {
+  if (!canLoad(key)) return;
+  const side = state.claws.R === null ? 'R' : (state.claws.L === null ? 'L' : null);
+  if (side === null) return;
+  tryLoad(key, side);
+}
+
+function tryLoad(key, side) {
+  if (!canLoad(key) || state.claws[side] !== null) return;
+
+  const other = side === 'R' ? 'L' : 'R';
+  const otherKey = state.claws[other];
+
+  /* בדיקת זוג שגוי — מסות שונות */
+  if (otherKey !== null && OBJECTS[otherKey].mass !== OBJECTS[key].mass) {
+    showToast('שני החפצים צריכים להיות באותה מסה — בדקו את תגי המסה');
+    const card = document.getElementById('card-' + key);
+    card.classList.add('bounce');
+    setTimeout(() => card.classList.remove('bounce'), 450);
+    announce('החפץ הוחזר למחסן — המסות שונות');
+    return;
+  }
+
+  state.claws[side] = key;
+  els.held[side].src = OBJECTS[key].img;
+  els.held[side].alt = fullLabel(key) + ' מוחזק בזרוע. לחיצה להחזרה למחסן.';
+  els.clawWrap[side].classList.add('loaded');
+  document.getElementById('card-' + key).classList.add('used');
+  announce(fullLabel(key) + ' נטען לזרוע ' + (side === 'R' ? 'ימין' : 'שמאל'));
+  updatePhase();
+}
+
+function unload(side) {
+  const key = state.claws[side];
+  if (key === null) return;
+  state.claws[side] = null;
+  els.clawWrap[side].classList.remove('loaded');
+  els.held[side].src = '';
+  document.getElementById('card-' + key).classList.remove('used');
+  announce(fullLabel(key) + ' הוחזר למחסן');
+  updatePhase();
+}
+
+function updatePhase() {
+  const loaded = ['R', 'L'].filter(s => state.claws[s] !== null).length;
+  if (loaded === 0) state.phase = 'idle';
+  else if (loaded === 1) state.phase = 'one_loaded';
+  else state.phase = 'ready';
+  els.btnRelease.disabled = state.phase !== 'ready';
+  if (state.phase === 'ready') announce('שני חפצים טעונים — אפשר ללחוץ שחרר');
+}
+
+/* ============================================================
+   הודעות
+   ============================================================ */
+let toastTimer = null;
+function showToast(msg) {
+  els.toast.textContent = msg;
+  els.toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => els.toast.classList.remove('show'), 3200);
+}
+function announce(msg) { els.srStatus.textContent = msg; }
+
+/* ============================================================
+   שחרור ונפילה
+   ============================================================ */
+function fmtTime(t) {
+  const s = Math.min(t, 99.99);
+  return (s < 10 ? '0' : '') + s.toFixed(2);
+}
+
+els.btnRelease.addEventListener('click', () => {
+  if (state.phase !== 'ready') return;
+  state.phase = 'falling';
+  els.main.classList.remove('state-landed');
+  els.main.classList.add('state-falling');
+  els.btnRelease.disabled = true;
+  announce('החפצים שוחררו!');
+
+  /* פתיחת הזרועות — החפץ עובר לנתיב הנפילה */
+  const laneH = els.lane.R.clientHeight;
+  const floorH = 9;
+
+  const falling = {};
+  ['R', 'L'].forEach(side => {
+    const key = state.claws[side];
+    els.clawWrap[side].classList.remove('loaded'); // זרוע נפתחת
+    const img = document.createElement('img');
+    img.className = 'falling-obj';
+    img.src = OBJECTS[key].img;
+    img.alt = '';
+    /* דף A4 — רחב יותר, מרחף */
+    let objH = 44;
+    if (key === 'flat') { objH = 54; img.style.width = '54px'; img.style.height = '54px'; }
+    els.lane[side].appendChild(img);
+    falling[side] = { key, img, landed: false, T: OBJECTS[key].T, fallPx: laneH - floorH - objH };
+  });
+
+  const t0 = performance.now();
+
+  function frame(now) {
+    const t = (now - t0) / 1000;
+    let allLanded = true;
+
+    ['R', 'L'].forEach(side => {
+      const f = falling[side];
+      if (f.landed) return;
+
+      if (t >= f.T) {
+        /* נחיתה — עצירה מדויקת בזמן המאומת */
+        f.landed = true;
+        f.img.style.top = f.fallPx + 'px';
+        f.img.style.transform = 'translateX(50%)';
+        els.timer[side].textContent = fmtTime(f.T);
+        announce(fullLabel(f.key) + ' נחת אחרי ' + f.T.toFixed(2) + ' שניות');
+      } else {
+        allLanded = false;
+        const dist = fallDistance(f.key, t) * FALL_SCALE[f.key];      // 0–10 מטר
+        const y = Math.min(dist / 10, 1) * f.fallPx;
+        f.img.style.top = y + 'px';
+        /* ריחוף עדין לדף A4 בלבד */
+        if (f.key === 'flat') {
+          const sway = Math.sin(t * 2.2) * 9;
+          const tilt = Math.sin(t * 2.2 + 1) * 10;
+          f.img.style.transform = 'translateX(calc(50% + ' + sway + 'px)) rotate(' + tilt + 'deg)';
+        }
+        els.timer[side].textContent = fmtTime(t);
+      }
+    });
+
+    if (!allLanded) {
+      requestAnimationFrame(frame);
+    } else {
+      state.phase = 'landed';
+      els.main.classList.remove('state-falling');
+      els.main.classList.add('state-landed');
+      els.btnNext.disabled = false;
+      els.btnNext.classList.add('active');
+      announce('שני החפצים נחתו. אפשר לנסות זוג נוסף.');
+    }
+  }
+  requestAnimationFrame(frame);
+});
+
+/* ============================================================
+   לנסות זוג נוסף — איפוס
+   ============================================================ */
+els.btnNext.addEventListener('click', () => {
+  if (state.phase !== 'landed') return;
+
+  /* ניקוי חפצים נופלים */
+  document.querySelectorAll('.falling-obj').forEach(el => el.remove());
+
+  /* החזרת חפצים למחסן */
+  ['R', 'L'].forEach(side => {
+    const key = state.claws[side];
+    if (key !== null) document.getElementById('card-' + key).classList.remove('used');
+    state.claws[side] = null;
+    els.clawWrap[side].classList.remove('loaded');
+    els.held[side].src = '';
+    els.timer[side].textContent = '00.00';
+  });
+
+  state.phase = 'idle';
+  els.main.classList.remove('state-falling', 'state-landed');
+  els.btnNext.disabled = true;
+  els.btnNext.classList.remove('active');
+  els.btnRelease.disabled = true;
+  announce('היישומון אופס — אפשר לבחור זוג חדש');
+});
+
+/* ============================================================
+   סרגל גובה — טיקים מ-10 מטר (למעלה) עד 0 (רצפה)
+   ============================================================ */
+(function buildRuler() {
+  const ruler = document.querySelector('.ruler');
+  for (let m = 0; m <= 10; m++) {
+    const tick = document.createElement('div');
+    const major = (m === 0 || m === 5 || m === 10);
+    tick.className = 'ruler-tick' + (major ? '' : ' minor') + (m === 0 ? ' floor-tick' : '') + (m === 10 ? ' top-tick' : '');
+    tick.style.top = ((10 - m) * 10) + '%';   // 10 מ' למעלה, 0 ברצפה
+    if (major) {
+      const lbl = document.createElement('span');
+      lbl.textContent = (m === 10) ? "10 מ'" : String(m);
+      tick.appendChild(lbl);
+    }
+    ruler.appendChild(tick);
+  }
+})();
+
+/* טעינה מוקדמת של התמונות */
+Object.values(OBJECTS).forEach(o => { const im = new Image(); im.src = o.img; });
+</script>
+</body>
+</html>

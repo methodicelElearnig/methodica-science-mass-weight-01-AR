@@ -1,0 +1,26 @@
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# The Kata API key — the one live credential allowed on disk. Never commit it; the
+# package allowlist (docs-and-tools/package-allowlist.ps1) keeps it out of deployments.
+kata-api-key.txt
+
+# Logs written by the metadata / packaging scripts.
+*.log
+# …except run records archived on purpose (docs-and-tools/SEND-METADATA.md: archive before any run).
+!docs-and-tools/send-metadata-*.log
+!docs-and-tools/retrieve-metadata-*.log
+!docs-and-tools/preflight-metadata-*.log
+!docs-and-tools/publish-metadata-*.log
+
+# Catalogue snapshot pulled down to diff against metadata/ — not a source of truth.
+metadata-from/
+
+# Test harness dependencies: install jsdom OUTSIDE this OneDrive tree and point
+# NODE_PATH at it (see _test/README.md).
+node_modules/
+
+# Snapshots from docs-and-tools/save-restore-state.html may contain a real learner's answers.
+docs-and-tools/states/*
+!docs-and-tools/states/.gitkeep

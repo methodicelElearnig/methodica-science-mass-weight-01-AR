@@ -1,0 +1,11 @@
+=== send-metadata STATUS (read-only GETs) ===
+[INFO] Base URL     : https://kata.cet.ac.il
+[INFO] Metadata dir : C:\Users\Vadim\OneDrive - methodic.co.il\Projects_ACTIVE\MOE\720\2026\methodica-science-mass-weight-01\git-repo\methodica-science-mass-weight-01\metadata
+[INFO] Mode         : STATUS (read-only GETs)
+[INFO] published methodica-science-mass-weight-01-01 (HTTP 200)
+[INFO] published methodica-science-mass-weight-01-02 (HTTP 200)
+[INFO] published methodica-science-mass-weight-01-03 (HTTP 200)
+[INFO] published methodica-science-mass-weight-01-04 (HTTP 200)
+[INFO] published methodica-science-mass-weight-01-05 (HTTP 200)
+[INFO] published methodica-science-mass-weight-01-06 (HTTP 200)
+[INFO] Status done. draft=0 published=6 unreadable=0 — nothing was written.

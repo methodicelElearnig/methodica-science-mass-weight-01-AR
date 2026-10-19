@@ -4705,8 +4705,8 @@ button {
 }
 [data-screen="28"] .s12-bubble-wrap {
   position: relative;
-  width: 164px;
-  height: 86px;
+  width: 200px;   /* one-line Arabic text: wider and shorter than the Hebrew two-line bubble (164x86) */
+  height: 64px;
   flex-shrink: 0;
   z-index: 2;
 }
@@ -4733,6 +4733,7 @@ button {
   text-align: center;
   line-height: 1.3;
   direction: rtl;
+  white-space: nowrap;
 }
 [data-screen="28"] .s12-char-gif {
   width: 300px; /* was 400px — clipped by the nav bar; matches screen 24 */
